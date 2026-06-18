@@ -42,6 +42,28 @@ export const EMAIL_INTENTS = [
 ] as const;
 export type EmailIntent = (typeof EMAIL_INTENTS)[number];
 
+// ── Résultats des agents IA ──
+export interface QualificationDetail {
+  importer: number; // 0-3
+  europe: number; // 0-2
+  size: number; // 0-2
+  mango_tropical: number; // 0-3
+}
+
+export interface QualificationResult {
+  score: number; // 0-10 = somme du detail
+  detail: QualificationDetail;
+  imported_categories: string[];
+  main_products_detected: string[];
+  markets_detected: string[];
+  reasoning: string;
+}
+
+export interface DraftResult {
+  subject: string;
+  body: string;
+}
+
 // ── Entités ──
 export interface Prospect {
   id: string;
@@ -53,7 +75,7 @@ export interface Prospect {
   source: string | null;
   status: ProspectStatus;
   score: number | null;
-  score_detail: Record<string, number> | null;
+  score_detail: QualificationResult | null;
   verified_at: string | null;
   qualified_at: string | null;
   notes: string | null;
