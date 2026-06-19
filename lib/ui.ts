@@ -12,12 +12,21 @@ export function countryFlag(code: string | null): string {
   return FLAGS[code.trim().toUpperCase()] ?? "🏳️";
 }
 
-// Couleurs du score : vert ≥7, orange 4-6, rouge <4, neutre si null.
-export function scoreColor(score: number | null): { text: string; bar: string; ring: string } {
-  if (score === null) return { text: "text-gray-400", bar: "bg-gray-300", ring: "ring-gray-200" };
-  if (score >= 7) return { text: "text-green-600", bar: "bg-green-500", ring: "ring-green-200" };
-  if (score >= 4) return { text: "text-orange-600", bar: "bg-orange-500", ring: "ring-orange-200" };
-  return { text: "text-red-600", bar: "bg-red-500", ring: "ring-red-200" };
+// Couleurs du score (dark) : vert ≥7, orange 4-6, rouge <4, neutre si null.
+// `stroke` = couleur hex pour l'anneau SVG ; `pill` = classes du badge.
+export function scoreColor(score: number | null): {
+  text: string;
+  bar: string;
+  stroke: string;
+  pill: string;
+} {
+  if (score === null)
+    return { text: "text-zinc-500", bar: "bg-zinc-700", stroke: "#3f3f46", pill: "border-white/10 bg-white/5 text-zinc-400" };
+  if (score >= 7)
+    return { text: "text-green-400", bar: "bg-green-500", stroke: "#22c55e", pill: "border-green-500/20 bg-green-500/10 text-green-400" };
+  if (score >= 4)
+    return { text: "text-orange-400", bar: "bg-orange-500", stroke: "#f97316", pill: "border-orange-500/20 bg-orange-500/10 text-orange-400" };
+  return { text: "text-red-400", bar: "bg-red-500", stroke: "#ef4444", pill: "border-red-500/20 bg-red-500/10 text-red-400" };
 }
 
 const STATUS_LABELS: Record<ProspectStatus, string> = {
@@ -40,21 +49,21 @@ export function statusLabel(status: ProspectStatus): string {
   return STATUS_LABELS[status] ?? status;
 }
 
+// Badge statut (dark, style pill teinté).
 export function statusBadgeClass(status: ProspectStatus): string {
   switch (status) {
     case "hot":
-      return "bg-orange-100 text-orange-700 border-orange-200";
+      return "border-orange-500/20 bg-orange-500/10 text-orange-400";
     case "won":
-      return "bg-green-100 text-green-700 border-green-200";
+    case "qualified":
+      return "border-green-500/20 bg-green-500/10 text-green-400";
     case "lost":
     case "dnc":
-      return "bg-red-100 text-red-700 border-red-200";
+      return "border-red-500/20 bg-red-500/10 text-red-400";
     case "contacted":
     case "replied":
-      return "bg-blue-100 text-blue-700 border-blue-200";
-    case "qualified":
-      return "bg-green-50 text-green-700 border-green-200";
+      return "border-blue-500/20 bg-blue-500/10 text-blue-400";
     default:
-      return "bg-gray-100 text-gray-600 border-gray-200";
+      return "border-white/10 bg-white/5 text-zinc-400";
   }
 }

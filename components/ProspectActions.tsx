@@ -27,7 +27,6 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
 
   const canQualify = prospect.status === "new" || prospect.status === "verified";
   const canDraft = prospect.status === "qualified";
-  // Dropdown limité aux transitions valides (machine à états P1-04), filtré sur la zone humaine.
   const statusOptions = allowedTransitions(prospect.status).filter((s) => HUMAN_STATUSES.includes(s));
 
   async function qualify() {
@@ -87,7 +86,7 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
   return (
     <div className="space-y-3">
       {busy === "qualify" || busy === "draft" ? (
-        <div className="flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-sm font-medium text-orange-700">
+        <div className="flex items-center gap-2 rounded-lg border border-orange-500/20 bg-orange-500/10 px-3 py-2 text-sm font-medium text-orange-400">
           <span className="animate-pulse text-base">{busy === "qualify" ? SCOUT.emoji : PLUME.emoji}</span>
           <span className="animate-pulse">
             {busy === "qualify" ? "SCOUT analyse le site…" : "PLUME rédige l'email…"}
@@ -98,7 +97,7 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
           {canQualify && (
             <button
               onClick={qualify}
-              className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600"
+              className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-600"
             >
               🤖 Qualifier
             </button>
@@ -106,7 +105,7 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
           {canDraft && (
             <button
               onClick={draftEmail}
-              className="rounded-lg bg-[#1A1A1A] px-4 py-2 text-sm font-semibold text-white hover:bg-black"
+              className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10"
             >
               ✍️ Rédiger email
             </button>
@@ -116,13 +115,13 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
               defaultValue=""
               disabled={busy === "status"}
               onChange={(e) => changeStatus(e.target.value)}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-orange-500 focus:outline-none"
+              className="rounded-lg border border-white/10 bg-[#0A0A0A] px-3 py-2 text-sm text-zinc-300 transition-colors focus:border-orange-500 focus:outline-none"
             >
               <option value="" disabled>
                 Changer le statut…
               </option>
               {statusOptions.map((s) => (
-                <option key={s} value={s}>
+                <option key={s} value={s} className="bg-[#141414]">
                   {statusLabel(s)}
                 </option>
               ))}
@@ -131,7 +130,7 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
 
       {draft && (
         <EmailReviewModal

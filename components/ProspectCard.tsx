@@ -20,14 +20,16 @@ export default function ProspectCard({ prospect: p, busy, onQualify, onDraft }: 
 
   return (
     <div
-      className={`rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md ${
-        isHot ? "border-orange-400 ring-1 ring-orange-200" : "border-gray-200"
+      className={`group rounded-2xl border bg-[#141414] p-4 transition-all duration-200 hover:-translate-y-0.5 ${
+        isHot
+          ? "border-orange-500/40 shadow-[0_0_24px_-6px_rgba(249,115,22,0.35)]"
+          : "border-white/5 hover:border-orange-500/40"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <Link
           href={`/prospects/${p.id}`}
-          className="line-clamp-2 font-semibold text-[#1A1A1A] hover:text-orange-600 hover:underline"
+          className="line-clamp-2 font-semibold text-zinc-50 transition-colors hover:text-orange-400"
         >
           {isHot && "🔥 "}
           {p.company_name}
@@ -37,28 +39,19 @@ export default function ProspectCard({ prospect: p, busy, onQualify, onDraft }: 
         </span>
       </div>
 
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusBadgeClass(p.status)}`}>
           {statusLabel(p.status)}
         </span>
-        {p.segment && <span className="text-[11px] text-gray-400">{p.segment}</span>}
+        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sc.pill}`}>
+          {p.score !== null ? `${p.score}/10` : "—"}
+        </span>
+        {p.segment && <span className="text-[11px] text-zinc-600">{p.segment}</span>}
       </div>
 
-      {/* Score */}
-      <div className="mt-3">
-        <div className="mb-1 flex items-center justify-between text-xs">
-          <span className="text-gray-500">Score SCOUT</span>
-          <span className={`font-bold ${sc.text}`}>{p.score !== null ? `${p.score}/10` : "—"}</span>
-        </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-          <div className={`h-full rounded-full ${sc.bar}`} style={{ width: `${((p.score ?? 0) / 10) * 100}%` }} />
-        </div>
-      </div>
-
-      {/* Actions / loading */}
-      <div className="mt-4">
+      <div className="mt-3.5">
         {busy ? (
-          <div className="flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-xs font-medium text-orange-700">
+          <div className="flex items-center gap-2 rounded-lg border border-orange-500/20 bg-orange-500/10 px-3 py-2 text-xs font-medium text-orange-400">
             <span className="animate-pulse text-base">{busy === "qualify" ? SCOUT.emoji : PLUME.emoji}</span>
             <span className="animate-pulse">
               {busy === "qualify" ? "SCOUT analyse le site…" : "PLUME rédige l'email…"}
@@ -66,11 +59,11 @@ export default function ProspectCard({ prospect: p, busy, onQualify, onDraft }: 
           </div>
         ) : (
           (canQualify || canDraft) && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 opacity-100 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100">
               {canQualify && (
                 <button
                   onClick={onQualify}
-                  className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600"
+                  className="rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-orange-600"
                 >
                   🤖 Qualifier
                 </button>
@@ -78,9 +71,9 @@ export default function ProspectCard({ prospect: p, busy, onQualify, onDraft }: 
               {canDraft && (
                 <button
                   onClick={onDraft}
-                  className="rounded-lg bg-[#1A1A1A] px-3 py-1.5 text-xs font-semibold text-white hover:bg-black"
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10"
                 >
-                  ✍️ Rédiger email
+                  ✍️ Rédiger
                 </button>
               )}
             </div>

@@ -9,7 +9,31 @@ html {
 }
 
 body {
-  background-color: #fafafa;
-  color: #1a1a1a;
+  background-color: #0a0a0a;
+  color: #fafafa;
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Scrollbars discrets en dark mode */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #27272a transparent;
+}
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #27272a;
+  border-radius: 9999px;
+}
+
+/* Anneau de score SVG (fiche prospect) */
+@keyframes ring-fill {
+  from {
+    stroke-dashoffset: var(--ring-circ);
+  }
+  to {
+    stroke-dashoffset: var(--ring-target);
+  }
 }

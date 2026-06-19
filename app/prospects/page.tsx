@@ -6,11 +6,23 @@ import PipelineBoard from "@/components/PipelineBoard";
 
 export const dynamic = "force-dynamic";
 
-function Kpi({ label, value, accent }: { label: string; value: number; accent: string }) {
+function Kpi({
+  label,
+  value,
+  valueClass,
+  glow,
+}: {
+  label: string;
+  value: number;
+  valueClass: string;
+  glow: string;
+}) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
-      <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">{label}</p>
-      <p className={`mt-1 text-3xl font-bold ${accent}`}>{value}</p>
+    <div
+      className={`rounded-2xl border border-white/5 bg-[#141414] p-5 transition-all duration-200 hover:-translate-y-0.5 ${glow}`}
+    >
+      <p className="text-xs font-medium tracking-wide text-zinc-500 uppercase">{label}</p>
+      <p className={`mt-2 text-4xl font-bold tracking-tight ${valueClass}`}>{value}</p>
     </div>
   );
 }
@@ -34,39 +46,51 @@ export default async function ProspectsPage() {
   const emails = emailsRes.count ?? 0;
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <header className="mb-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <p className="text-2xl font-extrabold tracking-tight">
-              <span className="text-orange-500">Tropic</span>
-              <span className="text-[#1A1A1A]">-Aura</span>
-            </p>
-            <h1 className="text-sm text-gray-500">Tropicaura Prospection — pipeline export assisté par IA</h1>
-          </div>
+    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Header minimal */}
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-2xl font-semibold tracking-tight">
+            <span className="text-zinc-50">Tropic</span>
+            <span className="text-orange-500">—</span>
+            <span className="text-zinc-50">Aura</span>
+          </p>
+          <p className="mt-0.5 text-sm text-zinc-500">Pipeline export assisté par IA</p>
         </div>
+        <ImportButton />
       </header>
 
-      <div className="mb-6">
+      {/* Équipe IA */}
+      <section className="mb-6">
         <AgentTeam />
-      </div>
-
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <Kpi label="Prospects" value={total} accent="text-[#1A1A1A]" />
-        <Kpi label="Qualifiés" value={qualified} accent="text-green-600" />
-        <Kpi label="Hot leads" value={hot} accent="text-orange-500" />
-        <Kpi label="Emails rédigés" value={emails} accent="text-blue-600" />
-      </div>
-
-      <section className="mb-8">
-        <h2 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">
-          Importer des prospects
-        </h2>
-        <ImportButton />
       </section>
 
+      {/* KPI */}
+      <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Kpi label="Prospects" value={total} valueClass="text-zinc-50" glow="hover:border-white/10" />
+        <Kpi
+          label="Qualifiés"
+          value={qualified}
+          valueClass="text-green-400"
+          glow="hover:border-green-500/30 hover:shadow-[0_0_28px_-10px_rgba(34,197,94,0.6)]"
+        />
+        <Kpi
+          label="Hot leads"
+          value={hot}
+          valueClass="text-orange-500"
+          glow="hover:border-orange-500/30 hover:shadow-[0_0_28px_-10px_rgba(249,115,22,0.6)]"
+        />
+        <Kpi
+          label="Emails rédigés"
+          value={emails}
+          valueClass="text-blue-400"
+          glow="hover:border-blue-500/30 hover:shadow-[0_0_28px_-10px_rgba(59,130,246,0.6)]"
+        />
+      </section>
+
+      {/* Pipeline */}
       <section>
-        <h2 className="mb-3 text-sm font-semibold tracking-wide text-gray-500 uppercase">Pipeline</h2>
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-zinc-500 uppercase">Pipeline</h2>
         <PipelineBoard prospects={prospects} />
       </section>
     </main>

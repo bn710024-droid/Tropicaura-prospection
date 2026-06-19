@@ -88,23 +88,26 @@ export default function PipelineBoard({ prospects }: { prospects: Prospect[] }) 
   return (
     <div>
       {error && (
-        <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+        <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm text-red-400">
           {error}
         </div>
       )}
 
       <div className="flex gap-4 overflow-x-auto pb-4">
         {COLUMNS.map((col) => (
-          <div key={col.status} className="flex w-72 shrink-0 flex-col">
+          <div
+            key={col.status}
+            className="flex w-72 shrink-0 flex-col rounded-2xl border border-white/5 bg-white/[0.02] p-3"
+          >
             <div className="mb-3 flex items-center justify-between px-1">
-              <h3 className="text-sm font-semibold text-[#1A1A1A]">{col.title}</h3>
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+              <h3 className="text-sm font-semibold text-zinc-200">{col.title}</h3>
+              <span className="rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-zinc-400">
                 {grouped[col.status].length}
               </span>
             </div>
             <div className="flex flex-col gap-3">
               {grouped[col.status].length === 0 ? (
-                <p className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
+                <p className="rounded-xl border border-dashed border-white/5 px-3 py-6 text-center text-xs text-zinc-600">
                   Aucun prospect
                 </p>
               ) : (
