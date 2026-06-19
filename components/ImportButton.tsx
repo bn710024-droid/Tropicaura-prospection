@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface ImportReport {
@@ -12,6 +12,7 @@ interface ImportReport {
 
 export default function ImportButton() {
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<ImportReport | null>(null);
@@ -31,7 +32,9 @@ export default function ImportButton() {
         setError(json.error ?? "Échec de l'import");
       } else {
         setReport(json.data as ImportReport);
-        router.refresh(); // recharge la liste de la page (server component)
+        setFile(null);
+        if (inputRef.current) inputRef.current.value = "";
+        router.refresh();
       }
     } catch {
       setError("Erreur réseau");
@@ -41,37 +44,43 @@ export default function ImportButton() {
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-gray-300 p-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
+          ref={inputRef}
           type="file"
           accept=".csv,text/csv"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="text-sm"
+          className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-gray-700 hover:file:bg-gray-200"
         />
         <button
           onClick={handleUpload}
           disabled={!file || loading}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="shrink-0 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
         >
           {loading ? "Import…" : "Importer le CSV"}
         </button>
       </div>
 
-      <p className="text-xs text-gray-500">
+      <p className="mt-2 text-xs text-gray-400">
         Colonnes attendues : company_name, website, country, city, segment, source
       </p>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
       {report && (
-        <div className="text-sm">
-          <p className="font-medium">Rapport d&apos;import</p>
-          <ul className="list-inside list-disc text-gray-700">
-            <li>{report.created} créé(s)</li>
-            <li>{report.duplicates} doublon(s) ignoré(s)</li>
-            <li>{report.invalid} ligne(s) invalide(s)</li>
-          </ul>
+        <div className="mt-3 flex flex-wrap gap-2 text-sm">
+          <span className="rounded-full bg-green-50 px-3 py-1 font-medium text-green-700">
+            {report.created} créé(s)
+          </span>
+          <span className="rounded-full bg-gray-100 px-3 py-1 font-medium text-gray-600">
+            {report.duplicates} doublon(s)
+          </span>
+          {report.invalid > 0 && (
+            <span className="rounded-full bg-red-50 px-3 py-1 font-medium text-red-700">
+              {report.invalid} invalide(s)
+            </span>
+          )}
         </div>
       )}
     </div>

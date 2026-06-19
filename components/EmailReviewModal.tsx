@@ -1,0 +1,102 @@
+"use client";
+
+import { useState } from "react";
+import { PLUME } from "@/lib/agents";
+
+export interface DraftEmail {
+  id: string;
+  subject: string;
+  body: string;
+}
+
+interface Props {
+  email: DraftEmail;
+  onClose: () => void;
+  onApproved: () => void;
+}
+
+// Revue humaine obligatoire avant tout envoi (l'envoi réel est Phase 2).
+export default function EmailReviewModal({ email, onClose, onApproved }: Props) {
+  const [subject, setSubject] = useState(email.subject);
+  const [body, setBody] = useState(email.body);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function approve() {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/emails/${email.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, body, status: "ready_to_send" }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) setError(json.error ?? "Échec de l'approbation");
+      else onApproved();
+    } catch {
+      setError("Erreur réseau");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex items-center gap-3 border-b border-gray-100 px-5 py-4">
+          <span className="text-2xl">{PLUME.emoji}</span>
+          <div>
+            <p className="font-bold text-[#1A1A1A]">Email rédigé par {PLUME.name}</p>
+            <p className="text-xs text-gray-500">Relisez et modifiez avant d&apos;approuver</p>
+          </div>
+        </header>
+
+        <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Objet</label>
+            <input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Corps</label>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={12}
+              className="w-full resize-y rounded-lg border border-gray-300 px-3 py-2 text-sm leading-relaxed focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+            />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <p className="text-xs text-gray-400">📮 Envoi réel : activé en Phase 2 (désactivé pour l&apos;instant)</p>
+        </div>
+
+        <footer className="flex gap-3 border-t border-gray-100 px-5 py-4">
+          <button
+            onClick={approve}
+            disabled={saving}
+            className="flex-1 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+          >
+            {saving ? "Enregistrement…" : "✅ Approuver"}
+          </button>
+          <button
+            onClick={onClose}
+            disabled={saving}
+            className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            ❌ Annuler
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
