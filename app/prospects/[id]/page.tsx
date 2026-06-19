@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Email, Prospect } from "@/types";
-import { countryFlag, scoreColor, statusBadgeClass, statusLabel } from "@/lib/ui";
+import { countryFlag, countryName, scoreColor, statusBadgeClass, statusLabel } from "@/lib/ui";
 import { SCOUT, PLUME } from "@/lib/agents";
 import ProspectActions from "@/components/ProspectActions";
 
@@ -11,7 +11,11 @@ export const dynamic = "force-dynamic";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function Tag({ children, tone }: { children: React.ReactNode; tone: string }) {
-  return <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${tone}`}>{children}</span>;
+  return (
+    <span className={`rounded-full border border-white/5 bg-zinc-800 px-2.5 py-1 text-xs font-medium ${tone}`}>
+      {children}
+    </span>
+  );
 }
 
 function CriterionBar({ label, value, max }: { label: string; value: number; max: number }) {
@@ -60,7 +64,7 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
   const sc = scoreColor(prospect.score);
   const reco = recommendation(prospect.score);
 
-  // Anneau de score SVG
+  // Anneau de score SVG animé
   const R = 36;
   const circ = 2 * Math.PI * R;
   const target = circ * (1 - (prospect.score ?? 0) / 10);
@@ -69,17 +73,17 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       <Link href="/prospects" className="text-sm text-zinc-500 transition-colors hover:text-orange-400">
-        ← Retour au pipeline
+        ← Pipeline
       </Link>
 
       {/* En-tête */}
-      <header className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/5 bg-[#141414] p-6">
+      <header className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/[0.06] bg-zinc-900 p-6 shadow-lg shadow-black/20">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
+          <h1 className="text-3xl font-bold tracking-tight text-white">
             {countryFlag(prospect.country)} {prospect.company_name}
           </h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            {prospect.country ?? "—"}
+          <p className="mt-1 text-sm text-zinc-400">
+            {countryName(prospect.country) || prospect.country || "—"}
             {prospect.segment ? ` · ${prospect.segment}` : ""}
           </p>
           {prospect.website && (
@@ -87,7 +91,7 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
               href={prospect.website.startsWith("http") ? prospect.website : `https://${prospect.website}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-sm text-blue-400 hover:underline"
+              className="mt-1 inline-block text-sm text-orange-400 hover:underline"
             >
               {prospect.website}
             </a>
@@ -124,8 +128,8 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
       </header>
 
       {/* Analyse SCOUT */}
-      <section className="mt-6 rounded-2xl border border-white/5 bg-[#141414] p-6">
-        <h2 className="mb-4 flex items-center gap-2 font-semibold text-zinc-50">
+      <section className="mt-6 rounded-2xl border border-white/[0.06] bg-zinc-900 p-6 shadow-lg shadow-black/20">
+        <h2 className="mb-4 flex items-center gap-2 font-semibold text-white">
           <span className="text-xl">{SCOUT.emoji}</span> Analyse de {SCOUT.name}
         </h2>
         {q ? (
@@ -147,7 +151,7 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
                 <p className="mb-1.5 text-xs font-medium text-zinc-500">Catégories importées</p>
                 <div className="flex flex-wrap gap-1.5">
                   {q.imported_categories.map((c) => (
-                    <Tag key={c} tone="border-blue-500/20 bg-blue-500/10 text-blue-300">
+                    <Tag key={c} tone="text-blue-400">
                       {c}
                     </Tag>
                   ))}
@@ -159,7 +163,7 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
                 <p className="mb-1.5 text-xs font-medium text-zinc-500">Produits détectés</p>
                 <div className="flex flex-wrap gap-1.5">
                   {q.main_products_detected.map((c) => (
-                    <Tag key={c} tone="border-orange-500/20 bg-orange-500/10 text-orange-300">
+                    <Tag key={c} tone="text-orange-400">
                       {c}
                     </Tag>
                   ))}
@@ -171,7 +175,7 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
                 <p className="mb-1.5 text-xs font-medium text-zinc-500">Segments de marché</p>
                 <div className="flex flex-wrap gap-1.5">
                   {q.markets_detected.map((c) => (
-                    <Tag key={c} tone="border-green-500/20 bg-green-500/10 text-green-300">
+                    <Tag key={c} tone="text-green-400">
                       {c}
                     </Tag>
                   ))}
@@ -185,14 +189,14 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
       </section>
 
       {/* Emails */}
-      <section className="mt-6 rounded-2xl border border-white/5 bg-[#141414] p-6">
-        <h2 className="mb-4 font-semibold text-zinc-50">Emails</h2>
+      <section className="mt-6 rounded-2xl border border-white/[0.06] bg-zinc-900 p-6 shadow-lg shadow-black/20">
+        <h2 className="mb-4 font-semibold text-white">Emails</h2>
         {emails.length === 0 ? (
           <p className="text-sm text-zinc-600">Aucun email rédigé pour ce prospect.</p>
         ) : (
           <ul className="space-y-3">
             {emails.map((e) => (
-              <li key={e.id} className="flex gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+              <li key={e.id} className="flex gap-3 rounded-xl border border-white/5 bg-zinc-950 p-3">
                 <span className="text-xl" title={PLUME.name}>
                   {PLUME.emoji}
                 </span>
@@ -213,8 +217,8 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
       </section>
 
       {/* Actions */}
-      <section className="mt-6 rounded-2xl border border-white/5 bg-[#141414] p-6">
-        <h2 className="mb-4 font-semibold text-zinc-50">Actions</h2>
+      <section className="mt-6 rounded-2xl border border-white/[0.06] bg-zinc-900 p-6 shadow-lg shadow-black/20">
+        <h2 className="mb-4 font-semibold text-white">Actions</h2>
         <ProspectActions prospect={prospect} />
       </section>
     </main>

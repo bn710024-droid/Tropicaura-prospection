@@ -4,23 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Prospect, ProspectStatus } from "@/types";
 import ProspectCard from "./ProspectCard";
+import ImportButton from "./ImportButton";
 import EmailReviewModal, { type DraftEmail } from "./EmailReviewModal";
 
 const COLUMNS: { status: ProspectStatus; title: string }[] = [
-  { status: "new", title: "Nouveaux" },
-  { status: "qualified", title: "Qualifiés" },
-  { status: "contacted", title: "Contactés" },
-  { status: "replied", title: "Ont répondu" },
-  { status: "hot", title: "Chauds 🔥" },
+  { status: "new", title: "New" },
+  { status: "qualified", title: "Qualified" },
+  { status: "contacted", title: "Contacted" },
+  { status: "replied", title: "Replied" },
+  { status: "hot", title: "Hot 🔥" },
 ];
 
-const BOARD_STATUSES = new Set<ProspectStatus>([
-  "new",
-  "qualified",
-  "contacted",
-  "replied",
-  "hot",
-]);
+const BOARD_STATUSES = new Set<ProspectStatus>(["new", "qualified", "contacted", "replied", "hot"]);
 
 // verified regroupé sous "new" ; statuts terminaux / zone humaine non affichés sur le board.
 function columnOf(s: ProspectStatus): ProspectStatus | null {
@@ -35,13 +30,7 @@ export default function PipelineBoard({ prospects }: { prospects: Prospect[] }) 
   const [draft, setDraft] = useState<DraftEmail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const grouped: Record<string, Prospect[]> = {
-    new: [],
-    qualified: [],
-    contacted: [],
-    replied: [],
-    hot: [],
-  };
+  const grouped: Record<string, Prospect[]> = { new: [], qualified: [], contacted: [], replied: [], hot: [] };
   for (const p of prospects) {
     const c = columnOf(p.status);
     if (c) grouped[c].push(p);
@@ -85,6 +74,17 @@ export default function PipelineBoard({ prospects }: { prospects: Prospect[] }) 
     }
   }
 
+  if (prospects.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 py-20 text-center">
+        <div className="text-5xl opacity-25">📥</div>
+        <p className="mt-4 text-lg font-medium text-zinc-300">Importez vos premiers prospects</p>
+        <p className="mt-1 mb-5 text-sm text-zinc-500">Un CSV d&apos;importateurs pour démarrer le pipeline.</p>
+        <ImportButton />
+      </div>
+    );
+  }
+
   return (
     <div>
       {error && (
@@ -93,22 +93,19 @@ export default function PipelineBoard({ prospects }: { prospects: Prospect[] }) 
         </div>
       )}
 
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-5 overflow-x-auto pb-4">
         {COLUMNS.map((col) => (
-          <div
-            key={col.status}
-            className="flex w-72 shrink-0 flex-col rounded-2xl border border-white/5 bg-white/[0.02] p-3"
-          >
-            <div className="mb-3 flex items-center justify-between px-1">
-              <h3 className="text-sm font-semibold text-zinc-200">{col.title}</h3>
-              <span className="rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-zinc-400">
+          <div key={col.status} className="flex w-72 shrink-0 flex-col">
+            <div className="mb-3 flex items-center gap-2 px-1">
+              <h3 className="text-sm font-semibold tracking-wider text-zinc-400 uppercase">{col.title}</h3>
+              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-300">
                 {grouped[col.status].length}
               </span>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto pr-1">
               {grouped[col.status].length === 0 ? (
-                <p className="rounded-xl border border-dashed border-white/5 px-3 py-6 text-center text-xs text-zinc-600">
-                  Aucun prospect
+                <p className="rounded-xl border border-dashed border-white/5 px-3 py-5 text-center text-xs text-zinc-700">
+                  —
                 </p>
               ) : (
                 grouped[col.status].map((p) => (

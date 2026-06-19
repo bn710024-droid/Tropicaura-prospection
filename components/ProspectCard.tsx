@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Prospect } from "@/types";
-import { countryFlag, scoreColor, statusBadgeClass, statusLabel } from "@/lib/ui";
+import { countryFlag, countryName, scoreColor, statusBadgeClass, statusLabel } from "@/lib/ui";
 import { SCOUT, PLUME } from "@/lib/agents";
 
 interface Props {
@@ -18,26 +18,29 @@ export default function ProspectCard({ prospect: p, busy, onQualify, onDraft }: 
   const canQualify = p.status === "new" || p.status === "verified";
   const canDraft = p.status === "qualified"; // l'API draft exige exactement "qualified"
 
+  const stop = (fn: () => void) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fn();
+  };
+
   return (
-    <div
-      className={`group rounded-2xl border bg-[#141414] p-4 transition-all duration-200 hover:-translate-y-0.5 ${
+    <Link
+      href={`/prospects/${p.id}`}
+      className={`group relative block rounded-xl border bg-zinc-900 p-4 transition-all duration-200 hover:scale-[1.01] ${
         isHot
-          ? "border-orange-500/40 shadow-[0_0_24px_-6px_rgba(249,115,22,0.35)]"
-          : "border-white/5 hover:border-orange-500/40"
+          ? "border-orange-500/40 shadow-lg shadow-orange-500/20"
+          : "border-white/[0.06] hover:border-orange-500/30"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <Link
-          href={`/prospects/${p.id}`}
-          className="line-clamp-2 font-semibold text-zinc-50 transition-colors hover:text-orange-400"
-        >
-          {isHot && "🔥 "}
-          {p.company_name}
-        </Link>
-        <span className="shrink-0 text-lg" title={p.country ?? ""}>
-          {countryFlag(p.country)}
-        </span>
-      </div>
+      {isHot && <span className="absolute top-3 right-3 text-base">🔥</span>}
+
+      <p className="line-clamp-2 pr-5 font-semibold text-white transition-colors group-hover:text-orange-400">
+        {p.company_name}
+      </p>
+      <p className="mt-1 text-sm text-zinc-400">
+        {countryFlag(p.country)} {countryName(p.country) || "—"}
+      </p>
 
       <div className="mt-2.5 flex flex-wrap items-center gap-2">
         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusBadgeClass(p.status)}`}>
@@ -46,7 +49,6 @@ export default function ProspectCard({ prospect: p, busy, onQualify, onDraft }: 
         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sc.pill}`}>
           {p.score !== null ? `${p.score}/10` : "—"}
         </span>
-        {p.segment && <span className="text-[11px] text-zinc-600">{p.segment}</span>}
       </div>
 
       <div className="mt-3.5">
@@ -62,16 +64,16 @@ export default function ProspectCard({ prospect: p, busy, onQualify, onDraft }: 
             <div className="flex flex-wrap gap-2 opacity-100 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100">
               {canQualify && (
                 <button
-                  onClick={onQualify}
-                  className="rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-orange-600"
+                  onClick={stop(onQualify)}
+                  className="rounded-full border border-orange-500/50 px-3 py-1.5 text-xs font-semibold text-orange-400 transition-colors hover:bg-orange-500/10"
                 >
                   🤖 Qualifier
                 </button>
               )}
               {canDraft && (
                 <button
-                  onClick={onDraft}
-                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/10"
+                  onClick={stop(onDraft)}
+                  className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-zinc-200 transition-colors hover:bg-white/5"
                 >
                   ✍️ Rédiger
                 </button>
@@ -80,6 +82,6 @@ export default function ProspectCard({ prospect: p, busy, onQualify, onDraft }: 
           )
         )}
       </div>
-    </div>
+    </Link>
   );
 }

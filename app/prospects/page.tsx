@@ -19,9 +19,9 @@ function Kpi({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-white/5 bg-[#141414] p-5 transition-all duration-200 hover:-translate-y-0.5 ${glow}`}
+      className={`rounded-2xl border border-white/[0.06] bg-zinc-900 p-5 shadow-lg shadow-black/20 transition-all duration-200 hover:scale-[1.01] ${glow}`}
     >
-      <p className="text-xs font-medium tracking-wide text-zinc-500 uppercase">{label}</p>
+      <p className="text-xs font-medium tracking-wider text-zinc-500 uppercase">{label}</p>
       <p className={`mt-2 text-4xl font-bold tracking-tight ${valueClass}`}>{value}</p>
     </div>
   );
@@ -46,53 +46,69 @@ export default async function ProspectsPage() {
   const emails = emailsRes.count ?? 0;
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Header minimal */}
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-2xl font-semibold tracking-tight">
-            <span className="text-zinc-50">Tropic</span>
-            <span className="text-orange-500">—</span>
-            <span className="text-zinc-50">Aura</span>
+    <>
+      {/* Header hero compact, sticky */}
+      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-zinc-950/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          <div className="flex items-baseline gap-3">
+            <span className="text-2xl font-bold tracking-tight text-white">
+              TROPICAURA<span className="text-orange-500"> AI</span>
+            </span>
+            <span className="hidden text-sm text-zinc-500 sm:inline">Export Intelligence Platform</span>
+          </div>
+          <p className="shrink-0 text-xs text-zinc-400 sm:text-sm">
+            <span className="font-semibold text-green-400">{qualified}</span> qualifiés
+            <span className="mx-1.5 text-zinc-700">·</span>
+            <span className="font-semibold text-orange-400">{hot}</span> hot
+            <span className="mx-1.5 text-zinc-700">·</span>
+            <span className="font-semibold text-blue-400">{emails}</span> emails
           </p>
-          <p className="mt-0.5 text-sm text-zinc-500">Pipeline export assisté par IA</p>
         </div>
-        <ImportButton />
       </header>
 
-      {/* Équipe IA */}
-      <section className="mb-6">
-        <AgentTeam />
-      </section>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Équipe IA */}
+        <section className="mb-8">
+          <h2 className="mb-4 text-sm font-semibold tracking-wider text-zinc-500 uppercase">Mon équipe IA</h2>
+          <AgentTeam />
+        </section>
 
-      {/* KPI */}
-      <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Kpi label="Prospects" value={total} valueClass="text-zinc-50" glow="hover:border-white/10" />
-        <Kpi
-          label="Qualifiés"
-          value={qualified}
-          valueClass="text-green-400"
-          glow="hover:border-green-500/30 hover:shadow-[0_0_28px_-10px_rgba(34,197,94,0.6)]"
-        />
-        <Kpi
-          label="Hot leads"
-          value={hot}
-          valueClass="text-orange-500"
-          glow="hover:border-orange-500/30 hover:shadow-[0_0_28px_-10px_rgba(249,115,22,0.6)]"
-        />
-        <Kpi
-          label="Emails rédigés"
-          value={emails}
-          valueClass="text-blue-400"
-          glow="hover:border-blue-500/30 hover:shadow-[0_0_28px_-10px_rgba(59,130,246,0.6)]"
-        />
-      </section>
+        {/* KPI */}
+        <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <Kpi label="Prospects" value={total} valueClass="text-white" glow="hover:border-white/15" />
+          <Kpi
+            label="Qualifiés"
+            value={qualified}
+            valueClass="text-green-400"
+            glow="hover:border-green-500/30 hover:shadow-green-500/10"
+          />
+          <Kpi
+            label="Hot leads"
+            value={hot}
+            valueClass="text-orange-400"
+            glow="hover:border-orange-500/30 hover:shadow-orange-500/10"
+          />
+          <Kpi
+            label="Emails rédigés"
+            value={emails}
+            valueClass="text-blue-400"
+            glow="hover:border-blue-500/30 hover:shadow-blue-500/10"
+          />
+        </section>
 
-      {/* Pipeline */}
-      <section>
-        <h2 className="mb-4 text-sm font-semibold tracking-wide text-zinc-500 uppercase">Pipeline</h2>
-        <PipelineBoard prospects={prospects} />
-      </section>
-    </main>
+        {/* Import (masqué quand vide : l'état vide du pipeline propose déjà l'import) */}
+        {total > 0 && (
+          <section className="mb-8">
+            <ImportButton />
+          </section>
+        )}
+
+        {/* Pipeline */}
+        <section>
+          <h2 className="mb-4 text-sm font-semibold tracking-wider text-zinc-500 uppercase">Pipeline</h2>
+          <PipelineBoard prospects={prospects} />
+        </section>
+      </main>
+    </>
   );
 }

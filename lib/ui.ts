@@ -12,6 +12,18 @@ export function countryFlag(code: string | null): string {
   return FLAGS[code.trim().toUpperCase()] ?? "🏳️";
 }
 
+const COUNTRY_NAMES: Record<string, string> = {
+  NL: "Netherlands", FR: "France", BE: "Belgium", DE: "Germany", ES: "Spain",
+  IT: "Italy", PT: "Portugal", GB: "United Kingdom", UK: "United Kingdom",
+  CH: "Switzerland", PL: "Poland", AT: "Austria", SE: "Sweden", DK: "Denmark",
+  SN: "Senegal",
+};
+
+export function countryName(code: string | null): string {
+  if (!code) return "";
+  return COUNTRY_NAMES[code.trim().toUpperCase()] ?? code;
+}
+
 // Couleurs du score (dark) : vert ≥7, orange 4-6, rouge <4, neutre si null.
 // `stroke` = couleur hex pour l'anneau SVG ; `pill` = classes du badge.
 export function scoreColor(score: number | null): {

@@ -115,13 +115,13 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
               defaultValue=""
               disabled={busy === "status"}
               onChange={(e) => changeStatus(e.target.value)}
-              className="rounded-lg border border-white/10 bg-[#0A0A0A] px-3 py-2 text-sm text-zinc-300 transition-colors focus:border-orange-500 focus:outline-none"
+              className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-300 transition-colors focus:border-orange-500 focus:outline-none"
             >
               <option value="" disabled>
                 Changer le statut…
               </option>
               {statusOptions.map((s) => (
-                <option key={s} value={s} className="bg-[#141414]">
+                <option key={s} value={s} className="bg-zinc-900">
                   {statusLabel(s)}
                 </option>
               ))}

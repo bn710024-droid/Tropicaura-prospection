@@ -11,10 +11,10 @@ export interface AgentInfo {
 }
 
 export const AGENTS: AgentInfo[] = [
-  { id: "scout", emoji: "🤖", name: "SCOUT", role: "Qualification des prospects", status: "active" },
-  { id: "plume", emoji: "✍️", name: "PLUME", role: "Rédaction commerciale", status: "active" },
-  { id: "trieur", emoji: "📨", name: "TRIEUR", role: "Lecture des réponses", status: "soon" },
-  { id: "briefer", emoji: "📋", name: "BRIEFER", role: "Briefing handoff", status: "soon" },
+  { id: "scout", emoji: "🤖", name: "SCOUT", role: "Analyse & qualification des importateurs", status: "active" },
+  { id: "plume", emoji: "✍️", name: "PLUME", role: "Rédaction d'emails commerciaux personnalisés", status: "active" },
+  { id: "trieur", emoji: "📨", name: "TRIEUR", role: "Classification des réponses entrantes", status: "soon" },
+  { id: "briefer", emoji: "📋", name: "BRIEFER", role: "Préparation des dossiers de négociation", status: "soon" },
 ];
 
 export const SCOUT = AGENTS[0];

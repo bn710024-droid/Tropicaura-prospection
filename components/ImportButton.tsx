@@ -13,12 +13,12 @@ interface ImportReport {
 export default function ImportButton() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<ImportReport | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleUpload() {
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);
     setError(null);
@@ -28,52 +28,31 @@ export default function ImportButton() {
       form.append("file", file);
       const res = await fetch("/api/prospects/import", { method: "POST", body: form });
       const json = await res.json();
-      if (!res.ok || !json.ok) {
-        setError(json.error ?? "Échec de l'import");
-      } else {
+      if (!res.ok || !json.ok) setError(json.error ?? "Échec de l'import");
+      else {
         setReport(json.data as ImportReport);
-        setFile(null);
-        if (inputRef.current) inputRef.current.value = "";
         router.refresh();
       }
     } catch {
       setError("Erreur réseau");
     } finally {
       setLoading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-3">
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".csv,text/csv"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="hidden"
-        />
-        <button
-          onClick={() => inputRef.current?.click()}
-          className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-300 transition-all duration-200 hover:border-orange-500/50 hover:text-white"
-        >
-          Importer CSV
-        </button>
-        {file && <span className="max-w-[180px] truncate text-xs text-zinc-400">{file.name}</span>}
-        {file && (
-          <button
-            onClick={handleUpload}
-            disabled={loading}
-            className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-orange-600 disabled:opacity-50"
-          >
-            {loading ? "Import…" : "Lancer l'import"}
-          </button>
-        )}
-      </div>
-
-      <p className="text-[11px] text-zinc-600">
-        Colonnes : company_name, website, country, city, segment, source
-      </p>
+    <div className="flex flex-col items-start gap-1.5">
+      <input ref={inputRef} type="file" accept=".csv,text/csv" onChange={onFile} className="hidden" />
+      <button
+        onClick={() => inputRef.current?.click()}
+        disabled={loading}
+        title="CSV — colonnes : company_name, website, country, city, segment, source"
+        className="rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-orange-600 disabled:opacity-50"
+      >
+        {loading ? "Import en cours…" : "+ Importer des prospects"}
+      </button>
+      <p className="text-xs text-zinc-600">CSV : company_name, website, country, city, segment, source</p>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 

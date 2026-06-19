@@ -43,17 +43,17 @@ export default function EmailReviewModal({ email, onClose, onApproved }: Props) 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-xl sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div
-        className="flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-t-2xl border border-white/10 bg-[#141414] shadow-2xl sm:rounded-2xl"
+        className="flex h-full max-h-full w-full flex-col overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl sm:h-auto sm:max-h-[92vh] sm:max-w-2xl sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center gap-3 border-b border-white/5 px-5 py-4">
           <span className="text-2xl">{PLUME.emoji}</span>
           <div>
-            <p className="font-semibold text-zinc-50">Email rédigé par {PLUME.name}</p>
+            <p className="font-semibold text-white">Email rédigé par {PLUME.name}</p>
             <p className="text-xs text-zinc-500">Relisez et modifiez avant d&apos;approuver</p>
           </div>
         </header>
@@ -64,7 +64,7 @@ export default function EmailReviewModal({ email, onClose, onApproved }: Props) 
             <input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-[#0A0A0A] px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 transition-colors focus:border-orange-500 focus:outline-none"
+              className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 transition-colors focus:border-orange-500 focus:outline-none"
             />
           </div>
           <div>
@@ -72,8 +72,7 @@ export default function EmailReviewModal({ email, onClose, onApproved }: Props) 
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              rows={12}
-              className="w-full resize-y rounded-lg border border-white/10 bg-[#0A0A0A] px-3 py-2 text-sm leading-relaxed text-zinc-100 placeholder-zinc-600 transition-colors focus:border-orange-500 focus:outline-none"
+              className="min-h-64 w-full resize-y rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm leading-relaxed text-zinc-100 placeholder-zinc-600 transition-colors focus:border-orange-500 focus:outline-none"
             />
           </div>
           {error && <p className="text-sm text-red-400">{error}</p>}
@@ -91,7 +90,7 @@ export default function EmailReviewModal({ email, onClose, onApproved }: Props) 
           <button
             onClick={onClose}
             disabled={saving}
-            className="flex-1 rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/5 disabled:opacity-50"
+            className="flex-1 rounded-lg bg-zinc-800 px-4 py-2.5 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-700 disabled:opacity-50"
           >
             ❌ Annuler
           </button>
