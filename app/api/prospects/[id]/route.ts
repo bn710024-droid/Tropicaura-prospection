@@ -109,7 +109,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   return NextResponse.json({ ok: true, data: data as Prospect });
 }
 
-// DELETE /api/prospects/[id]  (cascade : contacts/emails/sequences/tasks).
+// DELETE /api/prospects/[id]  (cascade : contacts/tasks/reminders).
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   if (!isUuid(id)) {

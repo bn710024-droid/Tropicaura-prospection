@@ -1,37 +1,32 @@
 import { type ProspectStatus } from "@/types";
 
 /**
- * Machine à états du prospect (cf. docs/architecture.md §7).
+ * Cycle de prospection export — saisie manuelle, aucune automatisation.
  *
  * - Forward-only : on avance d'une étape à la fois.
- * - `lost` / `dnc` accessibles depuis TOUT statut non-terminal (sortie possible à tout moment).
- * - `won` / `lost` / `dnc` sont TERMINAUX (aucune transition sortante).
- * - Pas de retour arrière, pas de réactivation d'un `lost` (on recrée un prospect au besoin).
+ * - `refused` accessible depuis TOUT statut non-terminal (sortie possible à tout moment).
+ * - `active_client` / `refused` sont TERMINAUX.
  */
 const FORWARD_TRANSITIONS: Record<ProspectStatus, ProspectStatus[]> = {
-  new: ["verified"],
-  verified: ["qualified"],
-  qualified: ["contacted"],
-  contacted: ["replied"],
-  replied: ["hot"],
-  hot: ["contacted_whatsapp"],
-  contacted_whatsapp: ["meeting_scheduled"],
-  meeting_scheduled: ["quotation_sent"],
-  quotation_sent: ["sample_sent", "won"],
-  sample_sent: ["won"],
-  won: [],
-  lost: [],
-  dnc: [],
+  new: ["first_contact_sent"],
+  first_contact_sent: ["response_received"],
+  response_received: ["interested"],
+  interested: ["offer_sent"],
+  offer_sent: ["negotiation"],
+  negotiation: ["first_order"],
+  first_order: ["active_client"],
+  active_client: [],
+  refused: [],
 };
 
-const TERMINAL_STATUSES: readonly ProspectStatus[] = ["won", "lost", "dnc"];
-const ALWAYS_ALLOWED_EXITS: readonly ProspectStatus[] = ["lost", "dnc"];
+const TERMINAL_STATUSES: readonly ProspectStatus[] = ["active_client", "refused"];
+const ALWAYS_ALLOWED_EXITS: readonly ProspectStatus[] = ["refused"];
 
 export function isTerminal(status: ProspectStatus): boolean {
   return TERMINAL_STATUSES.includes(status);
 }
 
-/** Liste des transitions autorisées depuis un statut (forward + sorties lost/dnc). */
+/** Liste des transitions autorisées depuis un statut (forward + sortie refus). */
 export function allowedTransitions(from: ProspectStatus): ProspectStatus[] {
   if (isTerminal(from)) return [];
   const exits = ALWAYS_ALLOWED_EXITS.filter((s) => s !== from);

@@ -1,38 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { Prospect } from "@/types";
-
-const STATUS_LABEL: Record<string, string> = {
-  new: "Nouveau",
-  verified: "Vérifié",
-  qualified: "Qualifié",
-  contacted: "Contacté",
-  replied: "A répondu",
-  hot: "Chaud",
-  contacted_whatsapp: "WhatsApp",
-  meeting_scheduled: "RDV planifié",
-  quotation_sent: "Devis envoyé",
-  sample_sent: "Échantillon",
-  won: "Client",
-  lost: "Perdu",
-  dnc: "Ne pas contacter",
-};
-
-const STATUS_DOT: Record<string, string> = {
-  new: "bg-blue-400",
-  verified: "bg-blue-400",
-  qualified: "bg-secondary",
-  contacted: "bg-secondary",
-  replied: "bg-secondary",
-  hot: "bg-primary",
-  contacted_whatsapp: "bg-primary",
-  meeting_scheduled: "bg-primary",
-  quotation_sent: "bg-blue-400",
-  sample_sent: "bg-blue-400",
-  won: "bg-success",
-  lost: "bg-destructive",
-  dnc: "bg-destructive",
-};
+import { statusBadgeClass, statusEmoji, statusLabel } from "@/lib/ui";
 
 export default function RecentProspectsTable({ prospects }: { prospects: Prospect[] }) {
   if (prospects.length === 0) {
@@ -47,8 +16,7 @@ export default function RecentProspectsTable({ prospects }: { prospects: Prospec
             <th className="pb-2 pr-3 font-semibold">Entreprise</th>
             <th className="pb-2 pr-3 font-semibold">Pays</th>
             <th className="pb-2 pr-3 font-semibold">Segment</th>
-            <th className="pb-2 pr-3 font-semibold">Statut</th>
-            <th className="pb-2 font-semibold">Score</th>
+            <th className="pb-2 font-semibold">Statut</th>
           </tr>
         </thead>
         <tbody>
@@ -61,13 +29,11 @@ export default function RecentProspectsTable({ prospects }: { prospects: Prospec
               </td>
               <td className="py-2.5 pr-3 text-muted-foreground">{p.country ?? "—"}</td>
               <td className="py-2.5 pr-3 text-muted-foreground">{p.segment ?? "—"}</td>
-              <td className="py-2.5 pr-3">
-                <Badge variant="outline" className="gap-1.5 border-border font-normal text-foreground">
-                  <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[p.status] ?? "bg-muted-foreground"}`} />
-                  {STATUS_LABEL[p.status] ?? p.status}
+              <td className="py-2.5">
+                <Badge variant="outline" className={`gap-1 font-normal ${statusBadgeClass(p.status)}`}>
+                  {statusEmoji(p.status)} {statusLabel(p.status)}
                 </Badge>
               </td>
-              <td className="py-2.5 text-muted-foreground">{p.score ?? "—"}</td>
             </tr>
           ))}
         </tbody>

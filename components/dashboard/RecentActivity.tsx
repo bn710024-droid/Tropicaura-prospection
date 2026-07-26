@@ -1,14 +1,13 @@
-import { UserPlus, Upload, Sparkles, Mail, RefreshCw, Pencil, Trash2, Activity as ActivityIcon } from "lucide-react";
+import { UserPlus, Upload, RefreshCw, Pencil, Trash2, CheckSquare, Activity as ActivityIcon } from "lucide-react";
 import type { ActivityItem } from "@/lib/dashboard/queries";
 
 const ACTION_META: Record<string, { label: string; icon: typeof ActivityIcon }> = {
   "prospect.create": { label: "Nouveau prospect ajouté", icon: UserPlus },
   "prospect.import": { label: "Import CSV de prospects", icon: Upload },
-  qualify: { label: "Qualification IA effectuée", icon: Sparkles },
-  draft: { label: "Email rédigé par l'IA", icon: Mail },
   "prospect.status_change": { label: "Statut mis à jour", icon: RefreshCw },
   "prospect.update": { label: "Fiche prospect modifiée", icon: Pencil },
   "prospect.delete": { label: "Prospect supprimé", icon: Trash2 },
+  "task.status_change": { label: "Tâche mise à jour", icon: CheckSquare },
 };
 
 function timeAgo(iso: string): string {

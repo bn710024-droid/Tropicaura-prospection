@@ -1,25 +1,19 @@
-// Structure de navigation du CRM. `href` présent + `disabled` absent = page réelle.
-// Les entrées `disabled` sont des sections prévues mais pas encore construites :
-// elles restent visibles (cohérence visuelle avec la maquette premium) mais non cliquables.
+// Structure de navigation du CRM de prospection internationale.
+// `href` présent + `disabled` absent = page réelle. Les entrées `disabled` sont des
+// pages prévues (prochaines phases) mais pas encore construites : visibles pour la
+// cohérence de la maquette, non cliquables.
 import {
   LayoutDashboard,
-  Users,
+  Globe2,
   Building2,
   Contact,
   Megaphone,
   CheckSquare,
   BellRing,
-  Target,
-  FileText,
-  ShoppingCart,
-  Truck,
-  Receipt,
   BarChart3,
+  FileText,
   TrendingUp,
-  LineChart,
-  UserCog,
   Settings,
-  Plug,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,7 +34,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Prospection",
     items: [
       { label: "Tableau de bord", href: "/", icon: LayoutDashboard },
-      { label: "Prospects", href: "/prospects", icon: Users },
+      { label: "Prospects", href: "/prospects", icon: Globe2 },
       { label: "Entreprises", icon: Building2, disabled: true },
       { label: "Contacts", icon: Contact, disabled: true },
       { label: "Campagnes", icon: Megaphone, disabled: true },
@@ -49,29 +43,15 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Ventes",
-    items: [
-      { label: "Opportunités", icon: Target, disabled: true },
-      { label: "Devis", icon: FileText, disabled: true },
-      { label: "Commandes", icon: ShoppingCart, disabled: true },
-      { label: "Expéditions", icon: Truck, disabled: true },
-      { label: "Factures", icon: Receipt, disabled: true },
-    ],
-  },
-  {
     label: "Analytiques",
     items: [
       { label: "Statistiques", icon: BarChart3, disabled: true },
-      { label: "Rapports", icon: LineChart, disabled: true },
+      { label: "Rapports", icon: FileText, disabled: true },
       { label: "Prévisions", icon: TrendingUp, disabled: true },
     ],
   },
   {
     label: "Paramètres",
-    items: [
-      { label: "Utilisateurs", icon: UserCog, disabled: true },
-      { label: "Paramètres", icon: Settings, disabled: true },
-      { label: "Intégrations", icon: Plug, disabled: true },
-    ],
+    items: [{ label: "Paramètres", icon: Settings, disabled: true }],
   },
 ];

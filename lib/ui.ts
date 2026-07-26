@@ -24,58 +24,65 @@ export function countryName(code: string | null): string {
   return COUNTRY_NAMES[code.trim().toUpperCase()] ?? code;
 }
 
-// Couleurs du score (dark) : vert ≥7, orange 4-6, rouge <4, neutre si null.
-// `stroke` = couleur hex pour l'anneau SVG ; `pill` = classes du badge.
-export function scoreColor(score: number | null): {
-  text: string;
-  bar: string;
-  stroke: string;
-  pill: string;
-} {
-  if (score === null)
-    return { text: "text-zinc-500", bar: "bg-zinc-700", stroke: "#3f3f46", pill: "border-white/10 bg-white/5 text-zinc-400" };
-  if (score >= 7)
-    return { text: "text-green-400", bar: "bg-green-500", stroke: "#22c55e", pill: "border-green-500/20 bg-green-500/10 text-green-400" };
-  if (score >= 4)
-    return { text: "text-orange-400", bar: "bg-orange-500", stroke: "#f97316", pill: "border-orange-500/20 bg-orange-500/10 text-orange-400" };
-  return { text: "text-red-400", bar: "bg-red-500", stroke: "#ef4444", pill: "border-red-500/20 bg-red-500/10 text-red-400" };
+// ── Statuts prospect : cycle export (source unique de vérité pour label/emoji/couleur) ──
+interface StatusMeta {
+  label: string;
+  emoji: string;
+  badgeClass: string; // pill teinté (dark)
+  hex: string; // carte du monde / graphiques
 }
 
-const STATUS_LABELS: Record<ProspectStatus, string> = {
-  new: "Nouveau",
-  verified: "Vérifié",
-  qualified: "Qualifié",
-  contacted: "Contacté",
-  replied: "A répondu",
-  hot: "Chaud",
-  contacted_whatsapp: "WhatsApp",
-  meeting_scheduled: "RDV planifié",
-  quotation_sent: "Devis envoyé",
-  sample_sent: "Échantillon envoyé",
-  won: "Gagné",
-  lost: "Perdu",
-  dnc: "Ne pas contacter",
+const STATUS_META: Record<ProspectStatus, StatusMeta> = {
+  new: { label: "Nouveau prospect", emoji: "🟦", badgeClass: "border-blue-500/20 bg-blue-500/10 text-blue-400", hex: "#3b82f6" },
+  first_contact_sent: {
+    label: "Premier contact envoyé",
+    emoji: "🟨",
+    badgeClass: "border-yellow-500/20 bg-yellow-500/10 text-yellow-400",
+    hex: "#eab308",
+  },
+  response_received: {
+    label: "Réponse reçue",
+    emoji: "🟧",
+    badgeClass: "border-orange-500/20 bg-orange-500/10 text-orange-400",
+    hex: "#f97316",
+  },
+  interested: { label: "Intéressé", emoji: "🟩", badgeClass: "border-green-500/20 bg-green-500/10 text-green-400", hex: "#22c55e" },
+  offer_sent: { label: "Offre envoyée", emoji: "📄", badgeClass: "border-cyan-500/20 bg-cyan-500/10 text-cyan-400", hex: "#06b6d4" },
+  negotiation: {
+    label: "Négociation",
+    emoji: "🤝",
+    badgeClass: "border-purple-500/20 bg-purple-500/10 text-purple-400",
+    hex: "#a855f7",
+  },
+  first_order: {
+    label: "Première commande",
+    emoji: "🚢",
+    badgeClass: "border-teal-500/20 bg-teal-500/10 text-teal-400",
+    hex: "#14b8a6",
+  },
+  active_client: {
+    label: "Client actif",
+    emoji: "⭐",
+    badgeClass: "border-amber-400/25 bg-amber-400/10 text-amber-300",
+    hex: "#ffd700",
+  },
+  refused: { label: "Refus", emoji: "❌", badgeClass: "border-red-500/20 bg-red-500/10 text-red-400", hex: "#ef4444" },
 };
 
 export function statusLabel(status: ProspectStatus): string {
-  return STATUS_LABELS[status] ?? status;
+  return STATUS_META[status]?.label ?? status;
+}
+
+export function statusEmoji(status: ProspectStatus): string {
+  return STATUS_META[status]?.emoji ?? "⬜";
 }
 
 // Badge statut (dark, style pill teinté).
 export function statusBadgeClass(status: ProspectStatus): string {
-  switch (status) {
-    case "hot":
-      return "border-orange-500/20 bg-orange-500/10 text-orange-400";
-    case "won":
-    case "qualified":
-      return "border-green-500/20 bg-green-500/10 text-green-400";
-    case "lost":
-    case "dnc":
-      return "border-red-500/20 bg-red-500/10 text-red-400";
-    case "contacted":
-    case "replied":
-      return "border-blue-500/20 bg-blue-500/10 text-blue-400";
-    default:
-      return "border-white/10 bg-white/5 text-zinc-400";
-  }
+  return STATUS_META[status]?.badgeClass ?? "border-white/10 bg-white/5 text-zinc-400";
+}
+
+// Couleur hex du statut (carte du monde, graphiques, points).
+export function statusColorHex(status: ProspectStatus): string {
+  return STATUS_META[status]?.hex ?? "#71717a";
 }

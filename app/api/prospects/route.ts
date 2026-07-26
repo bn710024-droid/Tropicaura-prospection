@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const DEFAULT_LIMIT = 200;
 
-// GET /api/prospects?status=&minScore=&limit=  → liste triée par score desc.
+// GET /api/prospects?status=&country=&product=&q=&limit=  → liste triée par date d'ajout desc.
 export async function GET(req: NextRequest) {
   const parsed = listQuerySchema.safeParse(
     Object.fromEntries(req.nextUrl.searchParams)
@@ -19,18 +19,19 @@ export async function GET(req: NextRequest) {
       { status: 400 }
     );
   }
-  const { status, minScore, limit } = parsed.data;
+  const { status, country, product, q, limit } = parsed.data;
 
   const supabase = createServerClient();
   let query = supabase
     .from("prospects")
     .select("*")
-    .order("score", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .limit(limit ?? DEFAULT_LIMIT);
 
   if (status) query = query.eq("status", status);
-  if (minScore !== undefined) query = query.gte("score", minScore);
+  if (country) query = query.eq("country", country);
+  if (product) query = query.contains("products", [product]);
+  if (q) query = query.ilike("company_name", `%${q}%`);
 
   const { data, error } = await query;
   if (error) {

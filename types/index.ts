@@ -1,67 +1,26 @@
-// Types partagés — miroir du schéma Supabase (supabase/migrations/0001_init.sql).
+// Types partagés — miroir du schéma Supabase (supabase/migrations/0001_init.sql + 0002_prospection_pivot.sql).
 // Const-arrays + union types : idiomatique, compatible zod, aucun artefact runtime.
+//
+// CRM de prospection internationale à saisie 100% manuelle — aucune IA, aucune API payante.
+// `prospects` sert de table unique aux deux vues "Prospects" (pipeline) et "Entreprises" (annuaire).
 
-// ── Statuts prospect (machine à états : cf. lib/prospect-status.ts) ──
+// ── Statuts prospect (cycle export, machine à états : cf. lib/prospect-status.ts) ──
 export const PROSPECT_STATUSES = [
-  // Zone IA (automatique)
   "new",
-  "verified",
-  "qualified",
-  "contacted",
-  "replied",
-  // Handoff
-  "hot",
-  // Zone humaine (transitions manuelles)
-  "contacted_whatsapp",
-  "meeting_scheduled",
-  "quotation_sent",
-  "sample_sent",
-  "won",
-  // Sorties possibles à tout moment
-  "lost",
-  "dnc",
+  "first_contact_sent",
+  "response_received",
+  "interested",
+  "offer_sent",
+  "negotiation",
+  "first_order",
+  "active_client",
+  // Sortie possible à tout moment
+  "refused",
 ] as const;
 export type ProspectStatus = (typeof PROSPECT_STATUSES)[number];
 
 export function isProspectStatus(v: unknown): v is ProspectStatus {
   return typeof v === "string" && (PROSPECT_STATUSES as readonly string[]).includes(v);
-}
-
-// ── Emails ──
-export const EMAIL_DIRECTIONS = ["outbound", "inbound"] as const;
-export type EmailDirection = (typeof EMAIL_DIRECTIONS)[number];
-
-export const EMAIL_INTENTS = [
-  "interested",
-  "not_interested",
-  "needs_info",
-  "wants_sample",
-  "price_negotiation",
-  "unsubscribe",
-  "out_of_office",
-] as const;
-export type EmailIntent = (typeof EMAIL_INTENTS)[number];
-
-// ── Résultats des agents IA ──
-export interface QualificationDetail {
-  importer: number; // 0-3
-  europe: number; // 0-2
-  size: number; // 0-2
-  mango_tropical: number; // 0-3
-}
-
-export interface QualificationResult {
-  score: number; // 0-10 = somme du detail
-  detail: QualificationDetail;
-  imported_categories: string[];
-  main_products_detected: string[];
-  markets_detected: string[];
-  reasoning: string;
-}
-
-export interface DraftResult {
-  subject: string;
-  body: string;
 }
 
 // ── Entités ──
@@ -71,14 +30,20 @@ export interface Prospect {
   website: string | null;
   country: string | null;
   city: string | null;
+  address: string | null;
   segment: string | null;
   source: string | null;
   status: ProspectStatus;
-  score: number | null;
-  score_detail: QualificationResult | null;
-  verified_at: string | null;
-  qualified_at: string | null;
+  contact_name: string | null;
+  contact_role: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  products: string[];
   notes: string | null;
+  last_contact_at: string | null;
+  next_reminder_at: string | null;
+  campaign_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -90,54 +55,47 @@ export interface Contact {
   role_title: string | null;
   email: string | null;
   phone: string | null;
+  whatsapp: string | null;
   linkedin_url: string | null;
-  is_public_source: boolean;
-  created_at: string;
-}
-
-export interface Email {
-  id: string;
-  prospect_id: string;
-  contact_id: string | null;
-  direction: EmailDirection;
-  resend_id: string | null;
-  subject: string | null;
-  body: string | null;
-  sequence_step: number | null;
-  status: string | null;
-  intent: EmailIntent | null;
-  sent_at: string | null;
-  received_at: string | null;
   created_at: string;
 }
 
 export interface Campaign {
   id: string;
   name: string;
-  daily_limit: number;
-  status: string;
+  start_date: string | null;
+  end_date: string | null;
+  objective_text: string | null;
+  target_products: string[];
+  target_countries: string[];
+  target_company_count: number | null;
   created_at: string;
 }
 
-export interface Sequence {
-  id: string;
-  prospect_id: string;
-  campaign_id: string | null;
-  current_step: number;
-  next_action_at: string | null;
-  stopped: boolean;
-  created_at: string;
-}
+export const TASK_PRIORITIES = ["low", "medium", "high"] as const;
+export type TaskPriority = (typeof TASK_PRIORITIES)[number];
+
+export const TASK_STATUSES = ["open", "in_progress", "done"] as const;
+export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 export interface Task {
   id: string;
   prospect_id: string;
-  type: string;
+  campaign_id: string | null;
   title: string | null;
-  priority: string;
-  briefing: string | null;
-  dossier: Record<string, unknown> | null;
-  status: string;
+  description: string | null;
+  priority: TaskPriority;
+  due_date: string | null;
+  status: TaskStatus;
+  created_at: string;
+}
+
+export interface Reminder {
+  id: string;
+  prospect_id: string;
+  note: string;
+  due_at: string;
+  done: boolean;
   created_at: string;
 }
 

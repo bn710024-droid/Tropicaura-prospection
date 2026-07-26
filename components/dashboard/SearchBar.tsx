@@ -36,10 +36,7 @@ export default function SearchBar() {
   }, []);
 
   useEffect(() => {
-    if (query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
+    if (query.trim().length < 2) return;
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       fetch(`/api/search?q=${encodeURIComponent(query.trim())}`, { signal: controller.signal })
@@ -66,8 +63,10 @@ export default function SearchBar() {
         ref={inputRef}
         value={query}
         onChange={(e) => {
-          setQuery(e.target.value);
+          const value = e.target.value;
+          setQuery(value);
           setOpen(true);
+          if (value.trim().length < 2) setResults([]);
         }}
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}

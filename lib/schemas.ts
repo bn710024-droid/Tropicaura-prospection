@@ -18,35 +18,44 @@ const statusField = z
   .refine(isProspectStatus, "statut invalide")
   .optional();
 
-export const createProspectSchema = z.object({
+const optionalDate = z.string().trim().min(1).nullable().optional();
+
+const productsField = z.array(z.string().trim().min(1)).optional();
+
+const prospectFields = {
   company_name: z.string().trim().min(1, "company_name est requis"),
   website: optionalText,
   country: optionalText,
   city: optionalText,
+  address: optionalText,
   segment: optionalText,
   source: optionalText,
+  contact_name: optionalText,
+  contact_role: optionalText,
+  phone: optionalText,
+  whatsapp: optionalText,
+  email: optionalText,
+  products: productsField,
   notes: optionalText,
+  last_contact_at: optionalDate,
+  next_reminder_at: optionalDate,
+  campaign_id: optionalText,
   status: statusField,
-});
+};
+
+export const createProspectSchema = z.object(prospectFields);
 
 export const updateProspectSchema = z
-  .object({
-    company_name: z.string().trim().min(1).optional(),
-    website: optionalText,
-    country: optionalText,
-    city: optionalText,
-    segment: optionalText,
-    source: optionalText,
-    notes: optionalText,
-    status: statusField,
-  })
+  .object({ ...prospectFields, company_name: prospectFields.company_name.optional() })
   .refine((obj) => Object.keys(obj).length > 0, {
     message: "Au moins un champ doit être fourni",
   });
 
 export const listQuerySchema = z.object({
   status: z.string().refine(isProspectStatus, "statut invalide").optional(),
-  minScore: z.coerce.number().int().min(0).max(10).optional(),
+  country: z.string().trim().min(1).optional(),
+  product: z.string().trim().min(1).optional(),
+  q: z.string().trim().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(1000).optional(),
 });
 

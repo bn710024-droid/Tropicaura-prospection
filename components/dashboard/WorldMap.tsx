@@ -3,24 +3,12 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
-import type { CountryStat, CountryTier } from "@/lib/dashboard/queries";
+import type { CountryStat } from "@/lib/dashboard/queries";
+import { statusColorHex, statusEmoji, statusLabel } from "@/lib/ui";
+import { PROSPECT_STATUSES } from "@/types";
 
 // Topojson standard (Natural Earth 110m), chargé côté client par react-simple-maps.
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-
-const TIER_COLOR: Record<CountryTier, string> = {
-  prospected: "#f97316",
-  negotiation: "#22c55e",
-  offer_sent: "#3b82f6",
-  client: "#ffd700",
-};
-
-const TIER_LABEL: Record<CountryTier, string> = {
-  prospected: "Prospecté",
-  negotiation: "Négociation active",
-  offer_sent: "Devis envoyé",
-  client: "Client",
-};
 
 interface GeoFeature {
   rsmKey: string;
@@ -40,6 +28,11 @@ export default function WorldMap({ countryStats }: { countryStats: CountryStat[]
     return map;
   }, [countryStats]);
 
+  const legendStatuses = useMemo(() => {
+    const present = new Set(countryStats.map((s) => s.topStatus));
+    return PROSPECT_STATUSES.filter((s) => present.has(s));
+  }, [countryStats]);
+
   return (
     <div
       className="relative"
@@ -56,7 +49,7 @@ export default function WorldMap({ countryStats }: { countryStats: CountryStat[]
           {({ geographies }: { geographies: GeoFeature[] }) =>
             geographies.map((geo) => {
               const stat = statsByIso.get(Number(geo.id));
-              const fill = stat ? TIER_COLOR[stat.tier] : "#1a1a1a";
+              const fill = stat ? statusColorHex(stat.topStatus) : "#1a1a1a";
               return (
                 <Geography
                   key={geo.rsmKey}
@@ -101,8 +94,8 @@ export default function WorldMap({ countryStats }: { countryStats: CountryStat[]
           <p className="mb-1 flex items-center gap-1.5 text-sm font-bold text-foreground">
             {hovered.stat.country}
           </p>
-          <p className="mb-2 text-[11px] font-medium" style={{ color: TIER_COLOR[hovered.stat.tier] }}>
-            {TIER_LABEL[hovered.stat.tier]}
+          <p className="mb-2 text-[11px] font-medium" style={{ color: statusColorHex(hovered.stat.topStatus) }}>
+            {statusEmoji(hovered.stat.topStatus)} {statusLabel(hovered.stat.topStatus)}
           </p>
           <div className="space-y-1 text-xs text-muted-foreground">
             <div className="flex justify-between">
@@ -126,10 +119,10 @@ export default function WorldMap({ countryStats }: { countryStats: CountryStat[]
       )}
 
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
-        {(Object.keys(TIER_LABEL) as CountryTier[]).map((tier) => (
-          <div key={tier} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: TIER_COLOR[tier] }} />
-            {TIER_LABEL[tier]}
+        {legendStatuses.map((status) => (
+          <div key={status} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: statusColorHex(status) }} />
+            {statusEmoji(status)} {statusLabel(status)}
           </div>
         ))}
       </div>

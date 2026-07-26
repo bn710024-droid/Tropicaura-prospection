@@ -3,36 +3,29 @@ import { createServerClient } from "@/lib/supabase/server";
 import { countryNameToIsoNumeric } from "@/lib/countries";
 import type { ActivityLog, Prospect, ProspectStatus, Task } from "@/types";
 
-// Ordre forward-only réel de la machine à états (cf. lib/prospect-status.ts).
+// Ordre forward-only réel du cycle export (cf. lib/prospect-status.ts).
 // Sert à calculer un funnel cumulatif honnête (statut courant >= rang du palier)
-// et le palier le plus avancé atteint par pays.
+// et le statut le plus avancé atteint par pays. "refused" (sortie négative) reste
+// hors classement (0) : un pays 100% refusé retombe sur son propre statut, pas un rang fictif.
 const STATUS_RANK: Record<ProspectStatus, number> = {
   new: 1,
-  verified: 2,
-  qualified: 3,
-  contacted: 4,
-  replied: 5,
-  hot: 6,
-  contacted_whatsapp: 7,
-  meeting_scheduled: 8,
-  quotation_sent: 9,
-  sample_sent: 10,
-  won: 11,
-  lost: 0,
-  dnc: 0,
+  first_contact_sent: 2,
+  response_received: 3,
+  interested: 4,
+  offer_sent: 5,
+  negotiation: 6,
+  first_order: 7,
+  active_client: 8,
+  refused: 0,
 };
-
-const NEGOTIATION_STATUSES: ProspectStatus[] = ["hot", "contacted_whatsapp", "meeting_scheduled"];
-const OFFER_STATUSES: ProspectStatus[] = ["quotation_sent", "sample_sent"];
-
-export type CountryTier = "prospected" | "negotiation" | "offer_sent" | "client";
 
 export interface CountryStat {
   country: string;
   isoNumeric: number | null;
   total: number;
   negotiation: number;
-  tier: CountryTier;
+  /** Statut le plus avancé atteint par un prospect de ce pays — pilote la couleur sur la carte. */
+  topStatus: ProspectStatus;
   lastContact: string | null;
 }
 
@@ -75,13 +68,6 @@ export interface DashboardData {
   recentProspects: Prospect[];
 }
 
-function tierForRank(rank: number): CountryTier {
-  if (rank >= STATUS_RANK.won) return "client";
-  if (rank >= STATUS_RANK.quotation_sent) return "offer_sent";
-  if (rank >= STATUS_RANK.hot) return "negotiation";
-  return "prospected";
-}
-
 const MONTH_LABELS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -89,14 +75,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const [prospectsRes, activityRes, tasksRes] = await Promise.all([
     supabase.from("prospects").select("*").order("created_at", { ascending: false }).limit(1000),
-    // agent="claude" = télémétrie technique (un log par appel API IA), pas un événement métier
-    // lisible pour Babacar : on l'exclut du fil d'activité pour ne pas le noyer sous le bruit.
-    supabase
-      .from("activity_log")
-      .select("*")
-      .neq("agent", "claude")
-      .order("created_at", { ascending: false })
-      .limit(15),
+    supabase.from("activity_log").select("*").order("created_at", { ascending: false }).limit(15),
     // FK réelle prospects(...) → jointure PostgREST directe (activity_log n'en a pas, cf. plus bas).
     supabase
       .from("tasks")
@@ -114,9 +93,9 @@ export async function getDashboardData(): Promise<DashboardData> {
   // ── KPI globaux ──
   const totalProspects = prospects.length;
   const countriesSet = new Set(prospects.map((p) => p.country).filter((c): c is string => Boolean(c)));
-  const negotiationCount = prospects.filter((p) => NEGOTIATION_STATUSES.includes(p.status)).length;
-  const offerSentCount = prospects.filter((p) => OFFER_STATUSES.includes(p.status)).length;
-  const wonCount = prospects.filter((p) => p.status === "won").length;
+  const negotiationCount = prospects.filter((p) => p.status === "negotiation").length;
+  const offerSentCount = prospects.filter((p) => p.status === "offer_sent").length;
+  const wonCount = prospects.filter((p) => p.status === "active_client").length;
   const conversionRate = totalProspects > 0 ? wonCount / totalProspects : 0;
 
   // ── Statistiques par pays (carte + top pays) ──
@@ -129,31 +108,36 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
   const countryStats: CountryStat[] = Array.from(byCountry.entries())
     .map(([country, list]) => {
-      const maxRank = Math.max(...list.map((p) => STATUS_RANK[p.status] ?? 0));
+      const topStatus = list.reduce<ProspectStatus>(
+        (top, p) => (STATUS_RANK[p.status] > STATUS_RANK[top] ? p.status : top),
+        list[0].status
+      );
       const lastContact = list.reduce<string | null>((latest, p) => {
-        if (!latest || p.updated_at > latest) return p.updated_at;
+        if (!p.last_contact_at) return latest;
+        if (!latest || p.last_contact_at > latest) return p.last_contact_at;
         return latest;
       }, null);
       return {
         country,
         isoNumeric: countryNameToIsoNumeric(country),
         total: list.length,
-        negotiation: list.filter((p) => NEGOTIATION_STATUSES.includes(p.status)).length,
-        tier: tierForRank(maxRank),
+        negotiation: list.filter((p) => p.status === "negotiation").length,
+        topStatus,
         lastContact,
       };
     })
     .sort((a, b) => b.total - a.total);
 
-  // ── Funnel cumulatif (statut courant >= rang du palier, hors lost/dnc) ──
-  const activeProspects = prospects.filter((p) => p.status !== "lost" && p.status !== "dnc");
+  // ── Funnel cumulatif (statut courant >= rang du palier, hors refus) ──
+  const activeProspects = prospects.filter((p) => p.status !== "refused");
   const funnelDefs: { key: string; label: string; minRank: number }[] = [
     { key: "prospects", label: "Prospects", minRank: STATUS_RANK.new },
-    { key: "qualification", label: "Qualification", minRank: STATUS_RANK.qualified },
-    { key: "contact", label: "Premier contact", minRank: STATUS_RANK.contacted },
-    { key: "negociation", label: "Négociation", minRank: STATUS_RANK.hot },
-    { key: "offre", label: "Offre envoyée", minRank: STATUS_RANK.quotation_sent },
-    { key: "client", label: "Client", minRank: STATUS_RANK.won },
+    { key: "premier_contact", label: "Premier contact", minRank: STATUS_RANK.first_contact_sent },
+    { key: "reponse", label: "Réponse reçue", minRank: STATUS_RANK.response_received },
+    { key: "interesse", label: "Intéressé", minRank: STATUS_RANK.interested },
+    { key: "offre", label: "Offre envoyée", minRank: STATUS_RANK.offer_sent },
+    { key: "negociation", label: "Négociation", minRank: STATUS_RANK.negotiation },
+    { key: "client", label: "Client actif", minRank: STATUS_RANK.active_client },
   ];
   const funnel: FunnelStage[] = funnelDefs.map((stage) => ({
     key: stage.key,
