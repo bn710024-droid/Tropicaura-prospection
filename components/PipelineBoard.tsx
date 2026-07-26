@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { Prospect, ProspectStatus } from "@/types";
 import ProspectCard from "./ProspectCard";
@@ -77,8 +78,14 @@ export default function PipelineBoard({ prospects }: { prospects: Prospect[] }) 
   if (prospects.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 py-20 text-center">
-        <div className="text-5xl opacity-25">📥</div>
-        <p className="mt-4 text-lg font-medium text-zinc-300">Importez vos premiers prospects</p>
+        <Image
+          src="/logo.png"
+          alt="Tropic-Aura"
+          width={112}
+          height={112}
+          className="h-28 w-28 rounded-2xl object-contain opacity-90"
+        />
+        <p className="mt-5 text-lg font-medium text-zinc-300">Importez vos premiers prospects</p>
         <p className="mt-1 mb-5 text-sm text-zinc-500">Un CSV d&apos;importateurs pour démarrer le pipeline.</p>
         <ImportButton />
       </div>

@@ -7,6 +7,7 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Tropicaura Prospection",
   description: "Plateforme de prospection export assistée par IA — Tropic-Aura B.C.",
+  icons: { icon: "/logo.png" },
 };
 
 export default function RootLayout({

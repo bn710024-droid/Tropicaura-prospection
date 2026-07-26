@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { createServerClient } from "@/lib/supabase/server";
 import { type Prospect } from "@/types";
 import AgentTeam from "@/components/AgentTeam";
@@ -50,11 +51,21 @@ export default async function ProspectsPage() {
       {/* Header hero compact, sticky */}
       <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-zinc-950/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <div className="flex items-baseline gap-3">
-            <span className="text-2xl font-bold tracking-tight text-white">
-              TROPICAURA<span className="text-orange-500"> AI</span>
-            </span>
-            <span className="hidden text-sm text-zinc-500 sm:inline">Export Intelligence Platform</span>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="Tropic-Aura"
+              width={40}
+              height={40}
+              priority
+              className="h-10 w-10 shrink-0 rounded-lg object-contain"
+            />
+            <div className="leading-tight">
+              <span className="block text-base font-bold tracking-tight text-white">
+                Tropic<span className="text-orange-500">-</span>Aura<span className="text-orange-500"> AI</span>
+              </span>
+              <span className="hidden text-xs text-zinc-500 sm:block">Export Intelligence Platform</span>
+            </div>
           </div>
           <p className="shrink-0 text-xs text-zinc-400 sm:text-sm">
             <span className="font-semibold text-green-400">{qualified}</span> qualifiés
