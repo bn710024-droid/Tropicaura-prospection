@@ -61,6 +61,24 @@ export const listQuerySchema = z.object({
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const campaignFields = {
+  name: z.string().trim().min(1, "name est requis"),
+  start_date: optionalDate,
+  end_date: optionalDate,
+  objective_text: optionalText,
+  target_products: productsField,
+  target_countries: productsField,
+  target_company_count: z.coerce.number().int().min(0).nullable().optional(),
+};
+
+export const createCampaignSchema = z.object(campaignFields);
+
+export const updateCampaignSchema = z
+  .object({ ...campaignFields, name: campaignFields.name.optional() })
+  .refine((obj) => Object.keys(obj).length > 0, {
+    message: "Au moins un champ doit être fourni",
+  });
+
 const contactFields = {
   prospect_id: z.string().regex(UUID_RE, "prospect_id invalide"),
   full_name: optionalText,

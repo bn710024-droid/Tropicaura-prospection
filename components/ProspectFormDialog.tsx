@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import type { Prospect } from "@/types";
+import type { Campaign, Prospect } from "@/types";
 
 interface FormState {
   company_name: string;
@@ -30,6 +30,7 @@ interface FormState {
   notes: string;
   last_contact_at: string;
   next_reminder_at: string;
+  campaign_id: string;
 }
 
 const EMPTY: FormState = {
@@ -45,6 +46,7 @@ const EMPTY: FormState = {
   notes: "",
   last_contact_at: "",
   next_reminder_at: "",
+  campaign_id: "",
 };
 
 function toFormState(p: Prospect): FormState {
@@ -61,6 +63,7 @@ function toFormState(p: Prospect): FormState {
     notes: p.notes ?? "",
     last_contact_at: p.last_contact_at?.slice(0, 10) ?? "",
     next_reminder_at: p.next_reminder_at?.slice(0, 10) ?? "",
+    campaign_id: p.campaign_id ?? "",
   };
 }
 
@@ -79,6 +82,15 @@ export default function ProspectFormDialog({
   const [productInput, setProductInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    fetch("/api/campaigns")
+      .then((r) => r.json())
+      .then((json) => setCampaigns(json.data ?? []))
+      .catch(() => {});
+  }, [open]);
 
   function set<K extends keyof FormState>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -117,6 +129,7 @@ export default function ProspectFormDialog({
       products,
       last_contact_at: form.last_contact_at || null,
       next_reminder_at: form.next_reminder_at || null,
+      campaign_id: form.campaign_id || null,
     };
 
     try {
@@ -255,6 +268,23 @@ export default function ProspectFormDialog({
                 value={form.next_reminder_at}
                 onChange={(e) => set("next_reminder_at", e.target.value)}
               />
+            </div>
+
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="campaign_id">Campagne</Label>
+              <select
+                id="campaign_id"
+                value={form.campaign_id}
+                onChange={(e) => set("campaign_id", e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+              >
+                <option value="">Aucune</option>
+                {campaigns.map((c) => (
+                  <option key={c.id} value={c.id} className="bg-popover">
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-1.5 sm:col-span-2">
