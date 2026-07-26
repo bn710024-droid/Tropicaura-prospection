@@ -38,8 +38,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Entreprises", href: "/entreprises", icon: Building2 },
       { label: "Contacts", href: "/contacts", icon: Contact },
       { label: "Campagnes", href: "/campagnes", icon: Megaphone },
-      { label: "Tâches", icon: CheckSquare, disabled: true },
-      { label: "Rappels", icon: BellRing, disabled: true },
+      { label: "Tâches", href: "/taches", icon: CheckSquare },
+      { label: "Rappels", href: "/rappels", icon: BellRing },
     ],
   },
   {

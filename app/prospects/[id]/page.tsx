@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
-import type { Contact, Prospect } from "@/types";
+import type { Contact, Prospect, Reminder, Task } from "@/types";
 import { countryFlag, countryName, statusBadgeClass, statusEmoji, statusLabel } from "@/lib/ui";
 import ProspectActions from "@/components/ProspectActions";
 import ContactsList from "@/components/ContactsList";
+import TasksList, { type TaskWithCompany } from "@/components/TasksList";
+import RemindersList, { type ReminderWithCompany } from "@/components/RemindersList";
+import TaskFormDialog from "@/components/TaskFormDialog";
+import ReminderFormDialog from "@/components/ReminderFormDialog";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +44,13 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
     .eq("prospect_id", id)
     .order("created_at", { ascending: false });
   const contacts = (contactsData ?? []) as Contact[];
+
+  const [{ data: tasksData }, { data: remindersData }] = await Promise.all([
+    supabase.from("tasks").select("*").eq("prospect_id", id).order("created_at", { ascending: false }),
+    supabase.from("reminders").select("*").eq("prospect_id", id).order("due_at", { ascending: true }),
+  ]);
+  const tasks: TaskWithCompany[] = ((tasksData ?? []) as Task[]).map((t) => ({ ...t, companyName: null }));
+  const reminders: ReminderWithCompany[] = ((remindersData ?? []) as Reminder[]).map((r) => ({ ...r, companyName: null }));
 
   const overdue = prospect.next_reminder_at ? new Date(prospect.next_reminder_at) < new Date() : false;
   const website = prospect.website?.startsWith("http") ? prospect.website : prospect.website ? `https://${prospect.website}` : null;
@@ -125,6 +137,30 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
           Contacts ({contacts.length})
         </h2>
         <ContactsList prospectId={prospect.id} contacts={contacts} />
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-lg shadow-black/20">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">Tâches</h2>
+          <TaskFormDialog defaultProspectId={prospect.id} trigger={<Button variant="outline" size="sm">+ Tâche</Button>} />
+        </div>
+        {tasks.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Aucune tâche pour cette entreprise.</p>
+        ) : (
+          <TasksList tasks={tasks} />
+        )}
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-lg shadow-black/20">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">Rappels</h2>
+          <ReminderFormDialog defaultProspectId={prospect.id} trigger={<Button variant="outline" size="sm">+ Rappel</Button>} />
+        </div>
+        {reminders.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Aucun rappel pour cette entreprise.</p>
+        ) : (
+          <RemindersList reminders={reminders} />
+        )}
       </section>
 
       {prospect.notes && (

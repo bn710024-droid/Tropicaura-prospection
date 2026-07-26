@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import { countryNameToIsoNumeric } from "@/lib/countries";
-import type { ActivityLog, Prospect, ProspectStatus, Task } from "@/types";
+import type { ActivityLog, Prospect, ProspectStatus, Reminder, Task } from "@/types";
 
 // Ordre forward-only réel du cycle export (cf. lib/prospect-status.ts).
 // Sert à calculer un funnel cumulatif honnête (statut courant >= rang du palier)
@@ -53,6 +53,10 @@ export interface TaskItem extends Task {
   companyName: string | null;
 }
 
+export interface ReminderItem extends Reminder {
+  companyName: string | null;
+}
+
 export interface DashboardData {
   totalProspects: number;
   countriesCount: number;
@@ -65,6 +69,7 @@ export interface DashboardData {
   monthlyGrowth: MonthlyPoint[];
   recentActivity: ActivityItem[];
   tasksOpen: TaskItem[];
+  remindersDue: ReminderItem[];
   recentProspects: Prospect[];
 }
 
@@ -73,7 +78,7 @@ const MONTH_LABELS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août
 export async function getDashboardData(): Promise<DashboardData> {
   const supabase = createServerClient();
 
-  const [prospectsRes, activityRes, tasksRes] = await Promise.all([
+  const [prospectsRes, activityRes, tasksRes, remindersRes] = await Promise.all([
     supabase.from("prospects").select("*").order("created_at", { ascending: false }).limit(1000),
     supabase.from("activity_log").select("*").order("created_at", { ascending: false }).limit(15),
     // FK réelle prospects(...) → jointure PostgREST directe (activity_log n'en a pas, cf. plus bas).
@@ -84,11 +89,19 @@ export async function getDashboardData(): Promise<DashboardData> {
       .order("priority", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(6),
+    // Rappels non terminés, triés par échéance : les plus urgents (en retard) remontent en premier.
+    supabase
+      .from("reminders")
+      .select("*, prospects(company_name)")
+      .eq("done", false)
+      .order("due_at", { ascending: true })
+      .limit(6),
   ]);
 
   const prospects = (prospectsRes.data ?? []) as Prospect[];
   const activity = (activityRes.data ?? []) as ActivityLog[];
   const tasksJoined = (tasksRes.data ?? []) as (Task & { prospects: { company_name: string } | null })[];
+  const remindersJoined = (remindersRes.data ?? []) as (Reminder & { prospects: { company_name: string } | null })[];
 
   // ── KPI globaux ──
   const totalProspects = prospects.length;
@@ -174,6 +187,11 @@ export async function getDashboardData(): Promise<DashboardData> {
     companyName: joinedProspect?.company_name ?? null,
   }));
 
+  const remindersDue: ReminderItem[] = remindersJoined.map(({ prospects: joinedProspect, ...reminder }) => ({
+    ...reminder,
+    companyName: joinedProspect?.company_name ?? null,
+  }));
+
   const recentProspects = prospects.slice(0, 8);
 
   return {
@@ -188,6 +206,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     monthlyGrowth,
     recentActivity,
     tasksOpen,
+    remindersDue,
     recentProspects,
   };
 }

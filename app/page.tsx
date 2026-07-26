@@ -7,6 +7,7 @@ import PipelineFunnel from "@/components/dashboard/PipelineFunnel";
 import MonthlyGrowthChart from "@/components/dashboard/MonthlyGrowthChart";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import TasksOpen from "@/components/dashboard/TasksOpen";
+import RemindersDue from "@/components/dashboard/RemindersDue";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentProspectsTable from "@/components/dashboard/RecentProspectsTable";
 import FadeIn from "@/components/dashboard/FadeIn";
@@ -81,7 +82,7 @@ export default async function DashboardPage() {
         </FadeIn>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <FadeIn delay={0.05}>
           <Card className="h-full border-border bg-card">
             <CardHeader>
@@ -103,6 +104,16 @@ export default async function DashboardPage() {
           </Card>
         </FadeIn>
         <FadeIn delay={0.15}>
+          <Card className="h-full border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-base font-semibold text-foreground">Rappels</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RemindersDue reminders={data.remindersDue} />
+            </CardContent>
+          </Card>
+        </FadeIn>
+        <FadeIn delay={0.2}>
           <Card className="h-full border-border bg-card">
             <CardHeader>
               <CardTitle className="text-base font-semibold text-foreground">Actions rapides</CardTitle>

@@ -89,6 +89,47 @@ const contactFields = {
   linkedin_url: optionalText,
 };
 
+const taskFields = {
+  prospect_id: z.string().regex(UUID_RE, "prospect_id invalide"),
+  campaign_id: z.string().regex(UUID_RE, "campaign_id invalide").nullable().optional(),
+  title: z.string().trim().min(1, "title est requis"),
+  description: optionalText,
+  priority: z.enum(["low", "medium", "high"]).optional(),
+  due_date: optionalDate,
+};
+
+export const createTaskSchema = z.object(taskFields);
+
+export const updateTaskSchema = z
+  .object({
+    title: z.string().trim().min(1).optional(),
+    description: optionalText,
+    priority: z.enum(["low", "medium", "high"]).optional(),
+    due_date: optionalDate,
+    status: z.enum(["open", "in_progress", "done"]).optional(),
+  })
+  .refine((obj) => Object.keys(obj).length > 0, {
+    message: "Au moins un champ doit être fourni",
+  });
+
+const reminderFields = {
+  prospect_id: z.string().regex(UUID_RE, "prospect_id invalide"),
+  note: z.string().trim().min(1, "note est requise"),
+  due_at: z.string().trim().min(1, "due_at est requis"),
+};
+
+export const createReminderSchema = z.object(reminderFields);
+
+export const updateReminderSchema = z
+  .object({
+    note: z.string().trim().min(1).optional(),
+    due_at: z.string().trim().min(1).optional(),
+    done: z.boolean().optional(),
+  })
+  .refine((obj) => Object.keys(obj).length > 0, {
+    message: "Au moins un champ doit être fourni",
+  });
+
 export const createContactSchema = z.object(contactFields);
 
 export const updateContactSchema = z
