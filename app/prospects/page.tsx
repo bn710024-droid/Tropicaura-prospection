@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Link from "next/link";
 import { createServerClient } from "@/lib/supabase/server";
 import { type Prospect } from "@/types";
 import AgentTeam from "@/components/AgentTeam";
@@ -28,15 +28,24 @@ function Kpi({
   );
 }
 
-export default async function ProspectsPage() {
+export default async function ProspectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ country?: string }>;
+}) {
+  const { country } = await searchParams;
   const supabase = createServerClient();
+
+  let prospectsQuery = supabase
+    .from("prospects")
+    .select("*")
+    .order("score", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (country) prospectsQuery = prospectsQuery.eq("country", country);
+
   const [prospectsRes, emailsRes] = await Promise.all([
-    supabase
-      .from("prospects")
-      .select("*")
-      .order("score", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false })
-      .limit(500),
+    prospectsQuery,
     supabase.from("emails").select("*", { count: "exact", head: true }).eq("direction", "outbound"),
   ]);
 
@@ -48,24 +57,19 @@ export default async function ProspectsPage() {
 
   return (
     <>
-      {/* Header hero compact, sticky */}
-      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-zinc-950/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Tropic-Aura"
-              width={40}
-              height={40}
-              priority
-              className="h-10 w-10 shrink-0 rounded-lg object-contain"
-            />
-            <div className="leading-tight">
-              <span className="block text-base font-bold tracking-tight text-white">
-                Tropic<span className="text-orange-500">-</span>Aura<span className="text-orange-500"> AI</span>
-              </span>
-              <span className="hidden text-xs text-zinc-500 sm:block">Export Intelligence Platform</span>
-            </div>
+      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-white">Prospects</h1>
+            {country && (
+              <Link
+                href="/prospects"
+                className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-1 text-xs font-medium text-orange-400 transition-colors hover:bg-orange-500/20"
+              >
+                {country}
+                <span className="text-orange-400/60">✕</span>
+              </Link>
+            )}
           </div>
           <p className="shrink-0 text-xs text-zinc-400 sm:text-sm">
             <span className="font-semibold text-green-400">{qualified}</span> qualifiés
@@ -75,7 +79,7 @@ export default async function ProspectsPage() {
             <span className="font-semibold text-blue-400">{emails}</span> emails
           </p>
         </div>
-      </header>
+      </div>
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Équipe IA */}
@@ -115,7 +119,7 @@ export default async function ProspectsPage() {
         )}
 
         {/* Pipeline */}
-        <section>
+        <section id="pipeline">
           <h2 className="mb-4 text-sm font-semibold tracking-wider text-zinc-500 uppercase">Pipeline</h2>
           <PipelineBoard prospects={prospects} />
         </section>
