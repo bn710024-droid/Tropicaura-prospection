@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import Link from "next/link";
 import { Menu, Bell, Settings } from "lucide-react";
 import SidebarNav from "./SidebarNav";
 import SearchBar from "./SearchBar";
@@ -62,10 +63,14 @@ export default function AppShell({
             </Tooltip>
 
             <Tooltip>
-              <TooltipTrigger render={<Button variant="ghost" size="icon" disabled aria-label="Paramètres (bientôt)" />}>
+              <TooltipTrigger
+                render={
+                  <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/parametres" aria-label="Paramètres" />} />
+                }
+              >
                 <Settings className="h-[18px] w-[18px]" />
               </TooltipTrigger>
-              <TooltipContent>Pas encore disponible</TooltipContent>
+              <TooltipContent>Paramètres</TooltipContent>
             </Tooltip>
 
             <div className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">

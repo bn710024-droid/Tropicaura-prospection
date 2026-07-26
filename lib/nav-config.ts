@@ -45,13 +45,13 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Analytiques",
     items: [
-      { label: "Statistiques", icon: BarChart3, disabled: true },
-      { label: "Rapports", icon: FileText, disabled: true },
-      { label: "Prévisions", icon: TrendingUp, disabled: true },
+      { label: "Statistiques", href: "/statistiques", icon: BarChart3 },
+      { label: "Rapports", href: "/rapports", icon: FileText },
+      { label: "Prévisions", href: "/previsions", icon: TrendingUp },
     ],
   },
   {
     label: "Paramètres",
-    items: [{ label: "Paramètres", icon: Settings, disabled: true }],
+    items: [{ label: "Paramètres", href: "/parametres", icon: Settings }],
   },
 ];
