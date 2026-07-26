@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
-import type { Prospect } from "@/types";
+import type { Contact, Prospect } from "@/types";
 import { countryFlag, countryName, statusBadgeClass, statusEmoji, statusLabel } from "@/lib/ui";
 import ProspectActions from "@/components/ProspectActions";
+import ContactsList from "@/components/ContactsList";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,13 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
   const { data } = await supabase.from("prospects").select("*").eq("id", id).maybeSingle();
   if (!data) notFound();
   const prospect = data as Prospect;
+
+  const { data: contactsData } = await supabase
+    .from("contacts")
+    .select("*")
+    .eq("prospect_id", id)
+    .order("created_at", { ascending: false });
+  const contacts = (contactsData ?? []) as Contact[];
 
   const overdue = prospect.next_reminder_at ? new Date(prospect.next_reminder_at) < new Date() : false;
   const website = prospect.website?.startsWith("http") ? prospect.website : prospect.website ? `https://${prospect.website}` : null;
@@ -110,6 +118,13 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
             }
           />
         </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-lg shadow-black/20">
+        <h2 className="mb-4 text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+          Contacts ({contacts.length})
+        </h2>
+        <ContactsList prospectId={prospect.id} contacts={contacts} />
       </section>
 
       {prospect.notes && (

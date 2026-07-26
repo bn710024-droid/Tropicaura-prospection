@@ -35,8 +35,8 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Tableau de bord", href: "/", icon: LayoutDashboard },
       { label: "Prospects", href: "/prospects", icon: Globe2 },
-      { label: "Entreprises", icon: Building2, disabled: true },
-      { label: "Contacts", icon: Contact, disabled: true },
+      { label: "Entreprises", href: "/entreprises", icon: Building2 },
+      { label: "Contacts", href: "/contacts", icon: Contact },
       { label: "Campagnes", icon: Megaphone, disabled: true },
       { label: "Tâches", icon: CheckSquare, disabled: true },
       { label: "Rappels", icon: BellRing, disabled: true },

@@ -59,6 +59,33 @@ export const listQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(1000).optional(),
 });
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const contactFields = {
+  prospect_id: z.string().regex(UUID_RE, "prospect_id invalide"),
+  full_name: optionalText,
+  role_title: optionalText,
+  email: optionalText,
+  phone: optionalText,
+  whatsapp: optionalText,
+  linkedin_url: optionalText,
+};
+
+export const createContactSchema = z.object(contactFields);
+
+export const updateContactSchema = z
+  .object({
+    full_name: optionalText,
+    role_title: optionalText,
+    email: optionalText,
+    phone: optionalText,
+    whatsapp: optionalText,
+    linkedin_url: optionalText,
+  })
+  .refine((obj) => Object.keys(obj).length > 0, {
+    message: "Au moins un champ doit être fourni",
+  });
+
 export const importRowSchema = z.object({
   company_name: z.string().trim().min(1),
   website: optionalText,
