@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Prospect } from "@/types";
 import { countryFlag, countryName, statusBadgeClass, statusEmoji, statusLabel } from "@/lib/ui";
+import ProspectStatusInline from "./ProspectStatusInline";
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "—";
@@ -54,9 +55,7 @@ export default function ProspectsTable({ prospects }: { prospects: Prospect[] })
                   {countryFlag(p.country)} {countryName(p.country) || p.country || "—"}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${statusBadgeClass(p.status)}`}>
-                    {statusEmoji(p.status)} {statusLabel(p.status)}
-                  </span>
+  <ProspectStatusInline prospect={p} />
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{fmtDate(p.last_contact_at)}</td>
                 <td className={`px-4 py-3 font-medium ${overdue ? "text-destructive" : "text-muted-foreground"}`}>
