@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import type { Prospect } from "@/types";
 
@@ -91,19 +92,14 @@ export default function ReminderFormDialog({ trigger, defaultProspectId }: { tri
           {!defaultProspectId && (
             <div className="space-y-1.5">
               <Label htmlFor="rem_prospect">Entreprise *</Label>
-              <select
-                id="rem_prospect"
-                value={form.prospect_id}
-                onChange={(e) => set("prospect_id", e.target.value)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-              >
+              <NativeSelect id="rem_prospect" value={form.prospect_id} onChange={(e) => set("prospect_id", e.target.value)}>
                 <option value="">Sélectionner…</option>
                 {prospects.map((p) => (
                   <option key={p.id} value={p.id} className="bg-popover">
                     {p.company_name}
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
           )}
 

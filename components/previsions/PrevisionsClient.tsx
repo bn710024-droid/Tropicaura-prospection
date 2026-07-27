@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { PROSPECT_STATUSES, type Prospect, type ProspectStatus } from "@/types";
 import { statusLabel } from "@/lib/ui";
@@ -89,8 +90,6 @@ export default function PrevisionsClient() {
     saveGoals(next);
   }
 
-  const selectClass = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary";
-
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -111,27 +110,22 @@ export default function PrevisionsClient() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="goal_metric">Type</Label>
-                <select id="goal_metric" value={metric} onChange={(e) => setMetric(e.target.value as MetricType)} className={selectClass}>
+                <NativeSelect id="goal_metric" value={metric} onChange={(e) => setMetric(e.target.value as MetricType)}>
                   <option value="total_prospects" className="bg-popover">Nombre total de prospects</option>
                   <option value="countries" className="bg-popover">Nombre de pays prospectés</option>
                   <option value="status_count" className="bg-popover">Nombre de prospects à un statut donné</option>
-                </select>
+                </NativeSelect>
               </div>
               {metric === "status_count" && (
                 <div className="space-y-1.5">
                   <Label htmlFor="goal_status">Statut</Label>
-                  <select
-                    id="goal_status"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as ProspectStatus)}
-                    className={selectClass}
-                  >
+                  <NativeSelect id="goal_status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ProspectStatus)}>
                     {PROSPECT_STATUSES.map((s) => (
                       <option key={s} value={s} className="bg-popover">
                         {statusLabel(s)}
                       </option>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4">

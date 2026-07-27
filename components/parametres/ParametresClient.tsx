@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { NativeSelect } from "@/components/ui/native-select";
 
 const STORAGE_KEY = "tropicaura_profile";
 
@@ -78,8 +79,6 @@ export default function ParametresClient() {
     setSaved(false);
   }
 
-  const selectClass = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary";
-
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-8 sm:px-6">
       <div>
@@ -112,23 +111,23 @@ export default function ParametresClient() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="p_lang">Langue</Label>
-                <select id="p_lang" value={profile.language} onChange={(e) => set("language", e.target.value)} className={selectClass}>
+                <NativeSelect id="p_lang" value={profile.language} onChange={(e) => set("language", e.target.value)}>
                   {LANGUAGES.map((l) => (
                     <option key={l.value} value={l.value} className="bg-popover">
                       {l.label}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="p_tz">Fuseau horaire</Label>
-                <select id="p_tz" value={profile.timezone} onChange={(e) => set("timezone", e.target.value)} className={selectClass}>
+                <NativeSelect id="p_tz" value={profile.timezone} onChange={(e) => set("timezone", e.target.value)}>
                   {TIMEZONES.map((tz) => (
                     <option key={tz} value={tz} className="bg-popover">
                       {tz}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
             </div>
             <div className="flex items-center gap-3">

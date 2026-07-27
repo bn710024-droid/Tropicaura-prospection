@@ -6,6 +6,7 @@ import type { Prospect } from "@/types";
 import { allowedTransitions } from "@/lib/prospect-status";
 import { statusEmoji, statusLabel } from "@/lib/ui";
 import { Button } from "@/components/ui/button";
+import { NativeSelect } from "@/components/ui/native-select";
 import ProspectFormDialog from "./ProspectFormDialog";
 
 export default function ProspectActions({ prospect }: { prospect: Prospect }) {
@@ -61,12 +62,7 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
         <ProspectFormDialog prospect={prospect} trigger={<Button variant="outline">Modifier</Button>} />
 
         {statusOptions.length > 0 && (
-          <select
-            defaultValue=""
-            disabled={busy}
-            onChange={(e) => changeStatus(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-primary focus:outline-none disabled:opacity-50"
-          >
+          <NativeSelect defaultValue="" disabled={busy} onChange={(e) => changeStatus(e.target.value)} className="w-auto">
             <option value="" disabled>
               Changer le statut…
             </option>
@@ -75,7 +71,7 @@ export default function ProspectActions({ prospect }: { prospect: Prospect }) {
                 {statusEmoji(s)} {statusLabel(s)}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         )}
 
         <Button variant="ghost" className="text-destructive hover:text-destructive" disabled={busy} onClick={remove}>

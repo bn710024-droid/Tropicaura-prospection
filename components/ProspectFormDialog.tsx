@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { NativeSelect } from "@/components/ui/native-select";
 import {
   Dialog,
   DialogTrigger,
@@ -272,19 +273,14 @@ export default function ProspectFormDialog({
 
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="campaign_id">Campagne</Label>
-              <select
-                id="campaign_id"
-                value={form.campaign_id}
-                onChange={(e) => set("campaign_id", e.target.value)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-              >
+              <NativeSelect id="campaign_id" value={form.campaign_id} onChange={(e) => set("campaign_id", e.target.value)}>
                 <option value="">Aucune</option>
                 {campaigns.map((c) => (
                   <option key={c.id} value={c.id} className="bg-popover">
                     {c.name}
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
 
             <div className="space-y-1.5 sm:col-span-2">

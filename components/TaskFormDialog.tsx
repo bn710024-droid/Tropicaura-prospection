@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import type { Campaign, Prospect } from "@/types";
 
@@ -88,8 +89,6 @@ export default function TaskFormDialog({ trigger, defaultProspectId }: { trigger
     }
   }
 
-  const selectClass = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary";
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={trigger as React.ReactElement} />
@@ -112,30 +111,29 @@ export default function TaskFormDialog({ trigger, defaultProspectId }: { trigger
           {!defaultProspectId && (
             <div className="space-y-1.5">
               <Label htmlFor="task_prospect">Entreprise *</Label>
-              <select id="task_prospect" value={form.prospect_id} onChange={(e) => set("prospect_id", e.target.value)} className={selectClass}>
+              <NativeSelect id="task_prospect" value={form.prospect_id} onChange={(e) => set("prospect_id", e.target.value)}>
                 <option value="">Sélectionner…</option>
                 {prospects.map((p) => (
                   <option key={p.id} value={p.id} className="bg-popover">
                     {p.company_name}
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="task_priority">Priorité</Label>
-              <select
+              <NativeSelect
                 id="task_priority"
                 value={form.priority}
                 onChange={(e) => set("priority", e.target.value as FormState["priority"])}
-                className={selectClass}
               >
                 <option value="low" className="bg-popover">Basse</option>
                 <option value="medium" className="bg-popover">Moyenne</option>
                 <option value="high" className="bg-popover">Haute</option>
-              </select>
+              </NativeSelect>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="task_due">Échéance</Label>
@@ -145,14 +143,14 @@ export default function TaskFormDialog({ trigger, defaultProspectId }: { trigger
 
           <div className="space-y-1.5">
             <Label htmlFor="task_campaign">Campagne</Label>
-            <select id="task_campaign" value={form.campaign_id} onChange={(e) => set("campaign_id", e.target.value)} className={selectClass}>
+            <NativeSelect id="task_campaign" value={form.campaign_id} onChange={(e) => set("campaign_id", e.target.value)}>
               <option value="">Aucune</option>
               {campaigns.map((c) => (
                 <option key={c.id} value={c.id} className="bg-popover">
                   {c.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}

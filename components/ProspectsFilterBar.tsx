@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 import { PROSPECT_STATUSES } from "@/types";
 import { statusEmoji, statusLabel } from "@/lib/ui";
 
@@ -34,9 +35,6 @@ export default function ProspectsFilterBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
 
-  const selectClass =
-    "rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary";
-
   return (
     <div className="flex flex-wrap items-center gap-2">
       <div className="relative min-w-[200px] flex-1">
@@ -49,50 +47,34 @@ export default function ProspectsFilterBar({
         />
       </div>
 
-      <select
-        className={selectClass}
-        value={searchParams.get("country") ?? ""}
-        onChange={(e) => setParam("country", e.target.value)}
-      >
+      <NativeSelect className="w-auto bg-card" value={searchParams.get("country") ?? ""} onChange={(e) => setParam("country", e.target.value)}>
         <option value="">Tous les pays</option>
         {countries.map((c) => (
           <option key={c} value={c} className="bg-popover">
             {c}
           </option>
         ))}
-      </select>
+      </NativeSelect>
 
-      <select
-        className={selectClass}
-        value={searchParams.get("product") ?? ""}
-        onChange={(e) => setParam("product", e.target.value)}
-      >
+      <NativeSelect className="w-auto bg-card" value={searchParams.get("product") ?? ""} onChange={(e) => setParam("product", e.target.value)}>
         <option value="">Tous les produits</option>
         {products.map((p) => (
           <option key={p} value={p} className="bg-popover">
             {p}
           </option>
         ))}
-      </select>
+      </NativeSelect>
 
-      <select
-        className={selectClass}
-        value={searchParams.get("status") ?? ""}
-        onChange={(e) => setParam("status", e.target.value)}
-      >
+      <NativeSelect className="w-auto bg-card" value={searchParams.get("status") ?? ""} onChange={(e) => setParam("status", e.target.value)}>
         <option value="">Tous les statuts</option>
         {PROSPECT_STATUSES.map((s) => (
           <option key={s} value={s} className="bg-popover">
             {statusEmoji(s)} {statusLabel(s)}
           </option>
         ))}
-      </select>
+      </NativeSelect>
 
-      <select
-        className={selectClass}
-        value={searchParams.get("sort") ?? "recent"}
-        onChange={(e) => setParam("sort", e.target.value)}
-      >
+      <NativeSelect className="w-auto bg-card" value={searchParams.get("sort") ?? "recent"} onChange={(e) => setParam("sort", e.target.value)}>
         <option value="recent" className="bg-popover">
           Plus récents
         </option>
@@ -102,7 +84,7 @@ export default function ProspectsFilterBar({
         <option value="reminder" className="bg-popover">
           Relance la plus proche
         </option>
-      </select>
+      </NativeSelect>
     </div>
   );
 }
