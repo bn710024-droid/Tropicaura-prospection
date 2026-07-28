@@ -140,6 +140,7 @@ export const updateContactSchema = z
     phone: optionalText,
     whatsapp: optionalText,
     linkedin_url: optionalText,
+    email_sent_at: z.string().trim().min(1).nullable().optional(),
   })
   .refine((obj) => Object.keys(obj).length > 0, {
     message: "Au moins un champ doit être fourni",
