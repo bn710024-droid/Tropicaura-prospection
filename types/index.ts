@@ -57,6 +57,7 @@ export interface Contact {
   phone: string | null;
   whatsapp: string | null;
   linkedin_url: string | null;
+  email_sent_at: string | null;
   created_at: string;
 }
 
