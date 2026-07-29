@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BackButton from "@/components/BackButton";
 import { notFound } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Contact, Prospect, Reminder, Task } from "@/types";
@@ -58,9 +59,7 @@ export default async function ProspectDetailPage({ params }: { params: Promise<{
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6">
-      <Link href="/prospects" className="text-sm text-muted-foreground transition-colors hover:text-primary">
-        ← Prospects
-      </Link>
+      <BackButton />
 
       <Card>
         <CardContent>
